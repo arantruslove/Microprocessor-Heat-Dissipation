@@ -37,5 +37,3 @@ constants = np.array([4, -3, 7])
 result = jc.jacobi_method(matrix, constants, 1e-15, 10000)
 
 print(result)
-
-# %%

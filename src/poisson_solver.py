@@ -49,3 +49,73 @@ class PoissonSolver:
         self.step_size = step_size
         self.stiffness_matrix = assemble_stiffness_matrix(height, width)
         self.load_vector = source_terms * step_size**2
+
+    def apply_neumann(self, boundary_values, side):
+        """Applies Neumann boundary conditions to an edge."""
+        if side == "left":
+            if len(boundary_values) != self.height:
+                raise RuntimeError(
+                    "Size of boundary values must match the height of the region."
+                )
+
+            # Modify the stiffness matrix
+            for i in range(self.height):
+                self.stiffness_matrix[i][i + self.height] += 1
+
+            # Modify the load vector
+            for i in range(self.height):
+                self.load_vector[i] += 2 * self.step_size * boundary_values[i]
+
+        elif side == "right":
+            if len(boundary_values) != self.height:
+                raise RuntimeError(
+                    "Size of boundary values must match the height of the region."
+                )
+
+            for i in range(
+                len(self.stiffness_matrix) - 1,
+                len(self.stiffness_matrix) - self.height - 1,
+                -1,
+            ):
+                self.stiffness_matrix[i][i - self.height] += 1
+
+            for i in range(self.height):
+                self.load_vector[len(self.load_vector) - 1 - i] -= (
+                    2 * self.step_size * boundary_values[i]
+                )
+
+        elif side == "bottom":
+            if len(boundary_values) != self.width:
+                raise RuntimeError(
+                    "Size of boundary values must match the width of the region."
+                )
+
+            for i in range(0, len(self.stiffness_matrix), self.height):
+                self.stiffness_matrix[i][i + 1] += 1
+
+            vector_pos = 0
+            for i in range(self.width):
+                self.load_vector[vector_pos] += 2 * self.step_size * boundary_values[i]
+                vector_pos += self.height
+
+        elif side == "top":
+            if len(boundary_values) != self.width:
+                raise RuntimeError(
+                    "Size of boundary values must match the width of the region."
+                )
+
+            for i in range(len(self.stiffness_matrix) - 1, 0, -self.height):
+                self.stiffness_matrix[i][i - 1] += 1
+
+            vector_pos = self.height - 1
+            for i in range(self.width):
+                self.load_vector[vector_pos] -= 2 * self.step_size * boundary_values[i]
+                vector_pos += self.height
+
+    def solve_system_jacobi(self, stopping_condition, max_iterations):
+        """Solves the system of linear equations using the Jacobi method."""
+        solutions = jc.jacobi_method(
+            self.stiffness_matrix, self.load_vector, stopping_condition, max_iterations
+        )
+
+        return solutions
