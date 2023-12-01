@@ -1,5 +1,8 @@
 import numpy as np
 from . import jacobi as jc
+import scipy as sp
+from scipy.sparse import csr_matrix
+from scipy.sparse.linalg import spsolve
 
 
 def assemble_stiffness_matrix(height, width):
@@ -35,9 +38,6 @@ def assemble_stiffness_matrix(height, width):
 
 class PoissonSolver:
     def __init__(self, height, width, step_size, source_terms: np.ndarray):
-        print(len(source_terms))
-        print(height * width)
-
         if len(source_terms) != height * width:
             raise RuntimeError(
                 "Length of source_terms should be equal to height of the "
@@ -119,3 +119,13 @@ class PoissonSolver:
         )
 
         return solutions
+
+    def auto_solve(self):
+        """
+        Solves the matrix equations using scipy functions (not allowed for report
+        results but used for comparison).
+        """
+        A = csr_matrix(self.stiffness_matrix)
+        b = self.load_vector
+
+        return spsolve(A, b)

@@ -33,7 +33,7 @@ print(poisson_system.load_vector)
 PROCESSOR_HEIGHT = 0.001  # In m
 PROCESSOR_WIDTH = 0.014  # In m
 STEP_SIZE = 0.0002  # In m
-SURFACE_TEMP = 50  # In degrees Celsius
+SURFACE_TEMP = 20  # In degrees Celsius
 AMBIENT_TEMP = 20  # In degrees Celsius
 THERMAL_CONDUCTIVITY = 150  # W/mK
 THERMAL_OUTPUT = 5e8  # W/m^3
@@ -66,7 +66,8 @@ poisson_system.apply_neumann(vertical_boundary, "right")
 
 # Solving the system with LU decomposition
 # Assuming solveSystemJacobi is a method you've defined
-temperatures = poisson_system.solve_system_jacobi(1e-4, 100000)
+temperatures = poisson_system.solve_system_jacobi(1e-5, 100000)
+# temperatures = poisson_system.auto_solve()
 print(temperatures)
 print("Finished")
 

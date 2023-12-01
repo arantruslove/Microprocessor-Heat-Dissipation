@@ -1,5 +1,8 @@
 # %%
 import numpy as np
+import scipy as sp
+from scipy.sparse import csr_matrix
+from scipy.sparse.linalg import spsolve
 import src.jacobi as jc
 
 """Testing the Jacobi module."""
@@ -37,3 +40,14 @@ constants = np.array([4, -3, 7])
 result = jc.jacobi_method(matrix, constants, 1e-15, 10000)
 
 print(result)
+
+# %% Testing with spsolve
+
+A = csr_matrix(matrix)
+b = constants
+
+result = spsolve(A, b)
+
+print(result)
+
+# %%
