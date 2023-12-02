@@ -1,40 +1,6 @@
 import numpy as np
 import scipy as sp
-from . import utils
-
-
-def diagonal_inverse(matrix):
-    """Calculates the inverse of a diagonal matrix."""
-    inverse = np.zeros((len(matrix), len(matrix)))
-
-    for i in range(len(matrix)):
-        inverse[i][i] = 1 / matrix[i][i]
-
-    return inverse
-
-
-def decompose(matrix):
-    """Decomposes a matrix into the sum of diagonal, lower and upper matrices."""
-
-    diagonal = np.zeros((len(matrix), len(matrix)))
-    lower = np.zeros((len(matrix), len(matrix)))
-    upper = np.zeros((len(matrix), len(matrix)))
-
-    # Diagonal matrix
-    for i in range(len(matrix)):
-        diagonal[i][i] = matrix[i][i]
-
-    # Lower matrix
-    for i in range(len(matrix)):
-        for j in range(i):
-            lower[i][j] = matrix[i][j]
-
-    # Upper matrix
-    for i in range(len(matrix)):
-        for j in range(i + 1, len(matrix)):
-            upper[i][j] = matrix[i][j]
-
-    return diagonal, lower, upper
+from copy import deepcopy
 
 
 def fractional_change(current_array, previous_array):
@@ -42,41 +8,103 @@ def fractional_change(current_array, previous_array):
     Determines the fractional change of two vectors, comparing their norms. Used
     when comparing to the stopping condition.
     """
-    numerator = utils.euclidean_norm(current_array) - utils.euclidean_norm(
-        previous_array
-    )
-    denominator = utils.euclidean_norm(previous_array)
+    numerator = np.linalg.norm(current_array) - np.linalg.norm(previous_array)
+    denominator = np.linalg.norm(previous_array)
 
     return abs(numerator / denominator)
 
 
-def jacobi_method(matrix, constants, stopping_condition, max_iterations):
-    # Decompose the matrix
-    diagonal, lower, upper = decompose(matrix)
+def jacobi_poisson_iteration(
+    old: np.ndarray,
+    u0: np.ndarray,
+    source_term,
+    bc_adjust,
+    step_width,
+):
+    """
+    Given the old iteration solutution, finds the next iteration solution with
+    constant Neumann boundary conditions applied (heat flux as a result of contact with
+    air).
+    """
 
-    # Determine the inverse of the diagonal
-    inverse = diagonal_inverse(diagonal)
+    # Create a copy with the same shape as the old solution but with zeros
+    new = np.zeros_like(old)
+
+    width = len(old)
+    height = len(old[0])
+    for i in range(width):
+        for j in range(height):
+            new[i][j] += (step_width**2) * source_term
+
+            # Left boundary
+            if i == 0:
+                new[i][j] += 2 * old[i + 1][j] + 2 * step_width * bc_adjust
+
+            # Right boundary
+            elif i == width - 1:
+                new[i][j] += 2 * old[i - 1][j] + 2 * step_width * bc_adjust
+
+            # Horizontally interior
+            else:
+                new[i][j] += old[i - 1][j] + old[i + 1][j]
+
+            # Bottom boundary
+            if j == 0:
+                new[i][j] += 2 * old[i][j + 1] + 2 * step_width * bc_adjust
+
+            # Top boundary
+            elif j == height - 1:
+                new[i][j] += 2 * old[i][j - 1] + 2 * step_width * bc_adjust
+
+            # Vertically interior
+            else:
+                new[i][j] += old[i][j - 1] + old[i][j + 1]
+
+            new[i][j] /= 4
+            new[i][j] += u0[i][j]
+
+    return new
+
+
+def jacobi_poisson_solve(
+    height,
+    width,
+    source_term,
+    bc_adjust,
+    step_width,
+    stopping_condition,
+    max_iterations,
+) -> np.ndarray:
+    """
+    Solves the poisson equation using the jacobi method. Applies Neumann boundary
+    conditions.
+    """
 
     # Initial guess
-    solution = np.dot(inverse, constants)
+    row = [source_term / 4] * height
+    u0 = np.array([row] * width)
+    solution = np.array([row] * width)
+    print(u0)
 
-    # Setting a counter for max iterations
+    # Track max iterations
     counter = 0
+
     while True:
-        old_solution = solution
+        old_solution = deepcopy(solution)
 
-        # Determining the next iteration of the solution
-        first_term = np.dot(inverse, constants)
-        intermediate = np.dot(inverse, lower + upper)
-        second_term = np.dot(intermediate, old_solution)
-        solution = first_term - second_term
+        # Calculating the next iteration
+        solution = jacobi_poisson_iteration(
+            old_solution, u0, source_term, bc_adjust, step_width
+        )
 
+        # Check for max iterations
         counter += 1
         if counter > max_iterations:
-            raise RuntimeError("Maximum iterations reached")
+            raise RuntimeError("Max iterations reached")
 
-        # Check for convergence and max iterations
+        # Check for convergence
         frac_change = fractional_change(solution, old_solution)
+
         if frac_change < stopping_condition:
             break
 

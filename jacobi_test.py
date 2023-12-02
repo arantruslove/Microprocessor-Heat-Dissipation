@@ -1,53 +1,51 @@
 # %%
 import numpy as np
 import scipy as sp
-from scipy.sparse import csr_matrix
-from scipy.sparse.linalg import spsolve
+import src.heat_equations as he
 import src.jacobi as jc
 
 """Testing the Jacobi module."""
 
-# %% Testing the inverse of a diagonal matrix
-matrix = np.array([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
-inverse = jc.diagonal_inverse(matrix)
-print(inverse)
+# %% Testing a single iteration of a 3x3 grid to see if it is working as expected
 
+THERMAL_CONDUCTIVITY = 150
+STEP_WIDTH = 0.01  # in m
+SOURCE_TERM = 5e8 / 150
+MESH_HEIGHT = 3
+MESH_WIDTH = 3
+neumann_bc = (
+    -he.natural_dissipation(100000, 20) / THERMAL_CONDUCTIVITY  # Gradient at boundary
+)
+print(neumann_bc)
 
-# %% Testing the matrix decomposition
+row = [SOURCE_TERM / 4] * MESH_HEIGHT
+u0 = np.array([row] * MESH_WIDTH)
+solution = np.array([row] * MESH_WIDTH)
 
-matrix = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-
-diagonal, lower, upper = jc.decompose(matrix)
-
-print(diagonal)
-print(lower)
-print(upper)
-
-# %% Testing matrix vector multiplication
-
-matrix1 = np.array([[1, 2], [3, 4]])
-array1 = np.array([1, 2])
-
-result = np.dot(matrix1, array1)
+result = jc.jacobi_poisson_iteration(solution, u0, SOURCE_TERM, neumann_bc, STEP_WIDTH)
 
 print(result)
 
-# %% Testing jacobi method
+# %% Testing the Jacobi method Poisson equation solver
 
-matrix = np.array([[2, 0, 1], [1, 2, 0], [0, 1, 5]])
-constants = np.array([4, -3, 7])
+THERMAL_CONDUCTIVITY = 150
+HEIGHT = 1e-3  # in m
+WIDTH = 14e-3  # in m
+STEP_WIDTH = 2e-4  # in m
+SOURCE_TERM = 5e8 / 150
+neumann_bc = (
+    -he.natural_dissipation(100, 20) / THERMAL_CONDUCTIVITY  # Gradient at boundary
+)
 
-result = jc.jacobi_method(matrix, constants, 1e-15, 10000)
+print(neumann_bc)
 
-print(result)
+mesh_height = round(HEIGHT / STEP_WIDTH)
+mesh_width = round(WIDTH / STEP_WIDTH)
 
-# %% Testing with spsolve
+temperatures = jc.jacobi_poisson_solve(
+    mesh_height, mesh_width, SOURCE_TERM, neumann_bc, STEP_WIDTH, 1e-4, 100000
+)
 
-A = csr_matrix(matrix)
-b = constants
-
-result = spsolve(A, b)
-
-print(result)
+print(temperatures)
 
 # %%

@@ -1,5 +1,6 @@
 # %%
 import numpy as np
+
 import src.poisson_solver as ps
 import src.heat_equations as he
 
@@ -70,5 +71,11 @@ temperatures = poisson_system.solve_system_jacobi(1e-5, 100000)
 # temperatures = poisson_system.auto_solve()
 print(temperatures)
 print("Finished")
+
+# %%
+array = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+
+new_array = np.zeros_like(array)
+print(new_array)
 
 # %%
