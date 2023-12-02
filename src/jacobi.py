@@ -66,12 +66,43 @@ def jacobi_poisson_iteration(
     return new
 
 
+def average_surf_temp(temperatures: np.ndarray):
+    """
+    Determines the average surface temperature of a material given a matrix of
+    temperatures.
+    """
+    height = len(temperatures[0])
+    width = len(temperatures)
+
+    surface_temps = []
+    # Left boundary
+    for i in range(height):
+        surface_temps.append(temperatures[0][i])
+
+    # Right boundary
+    for i in range(height):
+        surface_temps.append(temperatures[width - 1][i])
+
+    # Bottom boundary
+    for i in range(width):
+        surface_temps.append(temperatures[i][0])
+
+    # Top boundary
+    for i in range(width):
+        surface_temps.append(temperatures[i][height - 1])
+
+    average_temp = np.mean(surface_temps)
+    return average_temp
+
+
 def jacobi_poisson_solve(
     height,
     width,
     source_term,
-    bc_adjust,
+    t_a,
+    t_surf_0,
     step_width,
+    dissipation_func,
     stopping_condition,
     max_iterations,
 ) -> np.ndarray:
@@ -84,18 +115,24 @@ def jacobi_poisson_solve(
     row = [source_term / 4] * height
     u0 = np.array([row] * width)
     solution = np.array([row] * width)
-    print(u0)
 
     # Track max iterations
     counter = 0
 
+    t_surf = t_surf_0
     while True:
         old_solution = deepcopy(solution)
+
+        # Determining boundary condition
+        bc_adjust = dissipation_func(t_surf, t_a)
 
         # Calculating the next iteration
         solution = jacobi_poisson_iteration(
             old_solution, u0, source_term, bc_adjust, step_width
         )
+
+        # Updating surface temperature
+        t_surf = average_surf_temp(solution)
 
         # Check for max iterations
         counter += 1
