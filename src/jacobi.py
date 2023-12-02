@@ -57,7 +57,8 @@ def jacobi_method(matrix, constants, stopping_condition, max_iterations):
     # Determine the inverse of the diagonal
     inverse = diagonal_inverse(diagonal)
 
-    solution = np.zeros(len(matrix))
+    # Initial guess
+    solution = np.dot(inverse, constants)
 
     # Setting a counter for max iterations
     counter = 0
