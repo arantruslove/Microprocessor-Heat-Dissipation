@@ -124,7 +124,7 @@ def jacobi_poisson_solve(
         old_solution = deepcopy(solution)
 
         # Determining boundary condition
-        bc_adjust = dissipation_func(t_surf, t_a)
+        bc_adjust = -dissipation_func(t_surf, t_a) / 150
 
         # Calculating the next iteration
         solution = jacobi_poisson_iteration(
@@ -132,7 +132,7 @@ def jacobi_poisson_solve(
         )
 
         # Updating surface temperature
-        t_surf = average_surf_temp(solution)
+        t_surf = solution[0][0]
 
         # Check for max iterations
         counter += 1

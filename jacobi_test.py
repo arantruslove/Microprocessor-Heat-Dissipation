@@ -31,9 +31,9 @@ print(result)
 THERMAL_CONDUCTIVITY = 150
 HEIGHT = 1e-3  # in m
 WIDTH = 14e-3  # in m
-STEP_WIDTH = 0.5e-4  # in m
+STEP_WIDTH = 1e-4  # in m
 SOURCE_TERM = 5e8 / 150
-T_SURF_0 = 100
+T_SURF_0 = 1000
 T_A = 20
 
 mesh_height = round(HEIGHT / STEP_WIDTH)
