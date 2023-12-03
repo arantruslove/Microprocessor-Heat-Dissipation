@@ -36,10 +36,10 @@ RIGHT_BC = 2
 BOTTOM_BC = 3
 TOP_BC = 3
 STEP_WIDTH = 1
-STOPPING_CONDITION = 1e-10
+STOPPING_CONDITION = 1e-15
 MAX_ITERATIONS = 10000
 
-solution = jc.jacobi_poisson_solve(
+solutions = jc.jacobi_poisson_solve(
     HEIGHT,
     WIDTH,
     SOURCE_TERM,
@@ -52,28 +52,49 @@ solution = jc.jacobi_poisson_solve(
     MAX_ITERATIONS,
 )
 
-offset = 5 - solution[0][0]
-solution += offset
+offset = 5 - solutions[0][0]
+solutions += offset
 
-print(solution)
-# %% Testing a single iteration of a 3x3 grid to see if it is working as expected
+solutions_2d = solutions.reshape((10, 10))
 
-THERMAL_CONDUCTIVITY = 150
-STEP_WIDTH = 1  # in m
-SOURCE_TERM = 5e8 / 150
-MESH_HEIGHT = 3
-MESH_WIDTH = 3
-neumann_bc = (
-    -he.natural_dissipation(100000, 20) / THERMAL_CONDUCTIVITY  # Gradient at boundary
+# Create the DataFrame from the 2D array
+# Here, you can define your own row and column labels if needed
+df_solutions = pd.DataFrame(solutions_2d, columns=np.arange(10), index=np.arange(10))
+
+print(df_solutions)
+# %% Testing a single iteration of a 10x10 grid to see if it is working as expected
+
+HEIGHT = 10
+WIDTH = 10
+SOURCE_TERM = 0
+LEFT_BC = 2
+RIGHT_BC = 2
+BOTTOM_BC = 3
+TOP_BC = 3
+STEP_WIDTH = 1
+STOPPING_CONDITION = 1e-10
+MAX_ITERATIONS = 10000
+
+prev_iteration = np.full((WIDTH, HEIGHT), 1)
+
+iteration = jc.jacobi_poisson_iteration(
+    prev_iteration,
+    SOURCE_TERM,
+    LEFT_BC,
+    RIGHT_BC,
+    BOTTOM_BC,
+    TOP_BC,
+    STEP_WIDTH,
 )
-print(neumann_bc)
+iteration_2d = iteration.reshape((WIDTH, HEIGHT))
 
-row = [SOURCE_TERM / 4] * MESH_HEIGHT
-solution = np.array([row] * MESH_WIDTH)
+# Create the DataFrame from the 2D array
+# Here, you can define your own row and column labels if needed
+df_iteration = pd.DataFrame(
+    iteration_2d, columns=np.arange(WIDTH), index=np.arange(HEIGHT)
+)
 
-result = jc.jacobi_poisson_iteration(solution, SOURCE_TERM, neumann_bc, STEP_WIDTH)
-
-print(result)
+print(df_iteration)
 
 # %% Testing the Jacobi method Poisson equation solver
 

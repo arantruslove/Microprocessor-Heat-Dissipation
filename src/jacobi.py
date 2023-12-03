@@ -30,7 +30,7 @@ def jacobi_poisson_iteration(
     """
 
     # Create a copy with the same shape as the old solution but with zeros
-    new = np.zeros_like(old)
+    new = np.zeros_like(old, dtype=float)
 
     width = len(old)
     height = len(old[0])
@@ -40,7 +40,7 @@ def jacobi_poisson_iteration(
 
             # Left boundary
             if i == 0:
-                new[i][j] -= 2 * old[i + 1][j] + 2 * step_width * left_bc
+                new[i][j] += 2 * old[i + 1][j] - 2 * step_width * left_bc
 
             # Right boundary
             elif i == width - 1:
@@ -52,7 +52,7 @@ def jacobi_poisson_iteration(
 
             # Bottom boundary
             if j == 0:
-                new[i][j] -= 2 * old[i][j + 1] + 2 * step_width * bottom_bc
+                new[i][j] += 2 * old[i][j + 1] - 2 * step_width * bottom_bc
 
             # Top boundary
             elif j == height - 1:
@@ -114,8 +114,8 @@ def jacobi_poisson_solve(
     """
 
     # Initial guess
-    value = source_term / 4
-    solution = np.full((width, height), value)
+    value = -source_term / 4
+    solution = np.full((width, height), 1)
 
     # Track max iterations
     counter = 0
@@ -134,6 +134,8 @@ def jacobi_poisson_solve(
 
         # Check for convergence
         frac_change = fractional_change(solution, old_solution)
+
+        print(frac_change)
 
         if frac_change < stopping_condition:
             break
