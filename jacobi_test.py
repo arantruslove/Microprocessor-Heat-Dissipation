@@ -122,8 +122,8 @@ bottom_bcs = np.full(WIDTH, 0)
 top_bcs = np.full(WIDTH, 36)
 T_GUESS = 0
 STEP_WIDTH = 1
-STOPPING_CONDITION = 1e-3
-MAX_ITERATIONS = 1000000
+STOPPING_CONDITION = 1e-10
+MAX_ITERATIONS = 100000
 
 solutions = jc.jacobi_poisson_solve(
     HEIGHT,
@@ -200,8 +200,8 @@ df = pd.DataFrame(U, columns=y_values, index=x_values)
 print(df)
 # %% Solving Test Case 3
 
-HEIGHT = 10
-WIDTH = 10
+HEIGHT = 100
+WIDTH = 100
 SOURCE_TERM = 0
 left_bcs = np.full(HEIGHT, 0)
 right_bcs = np.full(HEIGHT, 18)
@@ -209,7 +209,7 @@ bottom_bcs = np.full(WIDTH, 0)
 top_bcs = np.full(WIDTH, -18)
 T_GUESS = 0
 STEP_WIDTH = 1
-STOPPING_CONDITION = 1e-10
+STOPPING_CONDITION = 1e-3
 MAX_ITERATIONS = 1000000
 
 solutions = jc.jacobi_poisson_solve(
@@ -262,15 +262,15 @@ iteration = prev_iteration
 
 # %% Testing a single iteration of a 10x10 grid to see if it is working as expected
 
-HEIGHT = 10
-WIDTH = 10
+HEIGHT = 100
+WIDTH = 100
 SOURCE_TERM = 0
 left_bcs = np.full(HEIGHT, 2)
 right_bcs = np.full(HEIGHT, 2)
 bottom_bcs = np.full(WIDTH, 3)
 top_bcs = np.full(WIDTH, 3)
 STEP_WIDTH = 1
-STOPPING_CONDITION = 1e-10
+STOPPING_CONDITION = 1e-3
 MAX_ITERATIONS = 10000
 
 prev_iteration = np.full((WIDTH, HEIGHT), 1)
