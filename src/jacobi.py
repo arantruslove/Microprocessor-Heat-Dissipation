@@ -1,5 +1,4 @@
 import numpy as np
-import scipy as sp
 from copy import deepcopy
 import src.heat_equations as he
 
@@ -13,6 +12,50 @@ def fractional_change(current_array, previous_array):
     denominator = np.linalg.norm(previous_array)
 
     return abs(numerator / denominator)
+
+
+def average_surf_temp(temperatures: np.ndarray):
+    """
+    Determines the average surface temperature of a material given a matrix of
+    temperatures.
+    """
+    height = len(temperatures[0])
+    width = len(temperatures)
+
+    surface_temps = []
+    # Left boundary
+    for i in range(height):
+        surface_temps.append(temperatures[0][i])
+
+    # Right boundary
+    for i in range(height):
+        surface_temps.append(temperatures[width - 1][i])
+
+    # Bottom boundary
+    for i in range(width):
+        surface_temps.append(temperatures[i][0])
+
+    # Top boundary
+    for i in range(width):
+        surface_temps.append(temperatures[i][height - 1])
+
+    average_temp = np.mean(surface_temps)
+    return average_temp
+
+
+def natural_bcs(temperatures: np.ndarray):
+    """
+    Determines the Neumann boundary conditions for each of the sides of the
+    boundaries. Uses ambient temperature at 20 degrees celcius and 150 W/mK for thermal
+    conductivity.
+    """
+    ambient = 20
+    left_bcs = he.natural_dissipation(temperatures[0], ambient) / 150
+    right_bcs = -he.natural_dissipation(temperatures[-1], ambient) / 150
+    bottom_bcs = he.natural_dissipation(temperatures[:, 0], ambient) / 150
+    top_bcs = -he.natural_dissipation(temperatures[:, -1], ambient) / 150
+
+    return left_bcs, right_bcs, bottom_bcs, top_bcs
 
 
 def jacobi_poisson_iteration(
@@ -68,35 +111,6 @@ def jacobi_poisson_iteration(
     return new
 
 
-def average_surf_temp(temperatures: np.ndarray):
-    """
-    Determines the average surface temperature of a material given a matrix of
-    temperatures.
-    """
-    height = len(temperatures[0])
-    width = len(temperatures)
-
-    surface_temps = []
-    # Left boundary
-    for i in range(height):
-        surface_temps.append(temperatures[0][i])
-
-    # Right boundary
-    for i in range(height):
-        surface_temps.append(temperatures[width - 1][i])
-
-    # Bottom boundary
-    for i in range(width):
-        surface_temps.append(temperatures[i][0])
-
-    # Top boundary
-    for i in range(width):
-        surface_temps.append(temperatures[i][height - 1])
-
-    average_temp = np.mean(surface_temps)
-    return average_temp
-
-
 def jacobi_poisson_solve(
     height,
     width,
@@ -109,6 +123,7 @@ def jacobi_poisson_solve(
     step_width,
     stopping_condition,
     max_iterations,
+    bc_update_func=None,
 ) -> np.ndarray:
     """
     Solves the poisson equation using the jacobi method. Applies Neumann boundary
@@ -133,13 +148,20 @@ def jacobi_poisson_solve(
             top_bcs,
             step_width,
         )
+
+        print(np.mean(solution))
+
+        # Update boundary conditions based off the new temperatures
+        if bc_update_func:
+            left_bcs, right_bcs, bottom_bcs, top_bcs = bc_update_func(solution)
+
         counter += 1
         if counter > max_iterations:
-            raise RuntimeError("Max iterations reached")
+            print("Max iterations reached")
+            break
 
         # Check for convergence
         frac_change = fractional_change(solution, old_solution)
-
         if frac_change < stopping_condition:
             break
 

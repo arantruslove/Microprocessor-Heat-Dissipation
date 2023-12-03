@@ -301,19 +301,18 @@ HEIGHT = 1e-3  # in m
 WIDTH = 14e-3  # in m
 STEP_WIDTH = 2e-4  # in m
 SOURCE_TERM = -5e8 / 150
-T_SURF_0 = 150
 T_A = 20
-T_GUESS = 200
+T_GUESS = 7000
 
 mesh_height = round(HEIGHT / STEP_WIDTH)
 mesh_width = round(WIDTH / STEP_WIDTH)
 
-grad = he.natural_dissipation(T_SURF_0, T_A) / THERMAL_CONDUCTIVITY
+grad = he.natural_dissipation(T_GUESS, T_A) / THERMAL_CONDUCTIVITY
 
-left_bc = grad
-right_bc = -grad
-bottom_bc = grad
-top_bc = -grad
+left_bc = np.full(mesh_height, grad)
+right_bc = np.full(mesh_height, -grad)
+bottom_bc = np.full(mesh_width, grad)
+top_bc = np.full(mesh_width, -grad)
 
 temperatures = jc.jacobi_poisson_solve(
     mesh_height,
@@ -325,8 +324,9 @@ temperatures = jc.jacobi_poisson_solve(
     top_bc,
     T_GUESS,
     STEP_WIDTH,
-    1e-6,
-    10000000,
+    5e-8,
+    1000,
+    jc.natural_bcs,
 )
 
 print(temperatures)
