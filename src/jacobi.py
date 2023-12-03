@@ -133,18 +133,6 @@ def jacobi_poisson_solve(
             top_bcs,
             step_width,
         )
-
-        # Updating boundary conditions
-        # left_temp = np.mean(solution[0])
-        # right_temp = np.mean(solution[width - 1])
-        # bottom_temp = np.mean(solution[:, 0])
-        # top_temp = np.mean(solution[:, height - 1])
-
-        # left_bc = he.natural_dissipation(left_temp, 20) / 150  # k=150
-        # right_bc = -he.natural_dissipation(right_temp, 20) / 150
-        # bottom_bc = he.natural_dissipation(bottom_temp, 20) / 150
-        # top_bc = -he.natural_dissipation(top_temp, 20) / 150
-        # Check for max iterations
         counter += 1
         if counter > max_iterations:
             raise RuntimeError("Max iterations reached")

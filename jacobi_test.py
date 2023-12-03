@@ -103,37 +103,36 @@ height = 10  # Height of the grid
 
 # Create a grid of x and y values
 x_values = np.arange(0, width)
-y_values = np.arange(0, height)
-X, Y = np.meshgrid(x_values, y_values, indexing="ij")
+y_values = np.arange(height - 1, -1, -1)
+X, Y = np.meshgrid(x_values, y_values, indexing="xy")
 
 # Evaluate the function u(x, y) = 2x^2 + y^2 + 5
 U = 2 * X**2 + Y**2 + 5
 
 # Create the DataFrame
-df = pd.DataFrame(U, columns=y_values, index=x_values)
-
-# Visualize the DataFrame
-print(df)
+df = pd.DataFrame(U, columns=y_values)
 # %% Solving Test Case 2
 
 HEIGHT = 10
 WIDTH = 10
-SOURCE_TERM = 100
-x_dir_bcs = np.array([0, 4, 8, 12, 16, 20, 24, 28, 32, 36])
-y_dir_bcs = np.array([0, 2, 4, 6, 8, 10, 12, 14, 16, 18])
+SOURCE_TERM = 6
+left_bcs = np.full(HEIGHT, 0)
+right_bcs = np.full(HEIGHT, 18)
+bottom_bcs = np.full(WIDTH, 0)
+top_bcs = np.full(WIDTH, 36)
 T_GUESS = 0
 STEP_WIDTH = 1
-STOPPING_CONDITION = 1e-4
+STOPPING_CONDITION = 1e-3
 MAX_ITERATIONS = 1000000
 
 solutions = jc.jacobi_poisson_solve(
     HEIGHT,
     WIDTH,
     SOURCE_TERM,
-    x_dir_bcs,
-    x_dir_bcs,
-    y_dir_bcs,
-    y_dir_bcs,
+    left_bcs,
+    right_bcs,
+    bottom_bcs,
+    top_bcs,
     T_GUESS,
     STEP_WIDTH,
     STOPPING_CONDITION,
@@ -143,13 +142,7 @@ solutions = jc.jacobi_poisson_solve(
 offset = 5 - solutions[0][0]
 solutions += offset
 
-solutions_2d = solutions.reshape((10, 10))
-
-# Create the DataFrame from the 2D array
-# Here, you can define your own row and column labels if needed
-df_solutions = pd.DataFrame(solutions_2d, columns=np.arange(10), index=np.arange(10))
-
-print(df_solutions)
+solutions = np.flip(solutions, axis=0)
 
 # %% Test Case 2 for a single iteration
 HEIGHT = 10
@@ -194,8 +187,8 @@ height = 10  # Height of the grid
 
 # Create a grid of x and y values
 x_values = np.arange(0, width)
-y_values = np.arange(0, height)
-X, Y = np.meshgrid(x_values, y_values, indexing="ij")
+y_values = np.arange(height - 1, -1, -1)
+X, Y = np.meshgrid(x_values, y_values, indexing="xy")
 
 # Evaluate the function u(x, y) = 2x^2 + y^2 + 5
 U = X**2 - Y**2 + 5
@@ -210,20 +203,23 @@ print(df)
 HEIGHT = 10
 WIDTH = 10
 SOURCE_TERM = 0
-bcs = np.array([0, 2, 4, 6, 8, 10, 12, 14, 16, 18])
+left_bcs = np.full(HEIGHT, 0)
+right_bcs = np.full(HEIGHT, 18)
+bottom_bcs = np.full(WIDTH, 0)
+top_bcs = np.full(WIDTH, -18)
 T_GUESS = 0
 STEP_WIDTH = 1
-STOPPING_CONDITION = 1e-4
+STOPPING_CONDITION = 1e-10
 MAX_ITERATIONS = 1000000
 
 solutions = jc.jacobi_poisson_solve(
     HEIGHT,
     WIDTH,
     SOURCE_TERM,
-    bcs,
-    bcs,
-    -bcs,
-    -bcs,
+    left_bcs,
+    right_bcs,
+    bottom_bcs,
+    top_bcs,
     T_GUESS,
     STEP_WIDTH,
     STOPPING_CONDITION,
@@ -233,19 +229,16 @@ solutions = jc.jacobi_poisson_solve(
 offset = 5 - solutions[0][0]
 solutions += offset
 
-solutions_2d = solutions.reshape((10, 10))
-
-# Create the DataFrame from the 2D array
-# Here, you can define your own row and column labels if needed
-df_solutions = pd.DataFrame(solutions_2d, columns=np.arange(10), index=np.arange(10))
-
-print(df_solutions)
+solutions = np.flip(solutions, axis=1)
 
 # %% Test Case 3 for a single iteration
 HEIGHT = 10
 WIDTH = 10
 SOURCE_TERM = 0
-bcs = np.array([0, 2, 4, 6, 8, 10, 12, 14, 16, 18])
+left_bcs = np.full(HEIGHT, 0)
+right_bcs = np.full(HEIGHT, 18)
+bottom_bcs = np.full(WIDTH, 0)
+top_bcs = np.full(WIDTH, -18)
 STEP_WIDTH = 1
 STOPPING_CONDITION = 1e-10
 MAX_ITERATIONS = 10000
@@ -266,15 +259,7 @@ for i in range(1):
 
 iteration = prev_iteration
 
-iteration_2d = iteration.reshape((WIDTH, HEIGHT))
 
-# Create the DataFrame from the 2D array
-# Here, you can define your own row and column labels if needed
-df_iteration = pd.DataFrame(
-    iteration_2d, columns=np.arange(WIDTH), index=np.arange(HEIGHT)
-)
-
-print(df_iteration)
 # %% Testing a single iteration of a 10x10 grid to see if it is working as expected
 
 HEIGHT = 10
