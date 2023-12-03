@@ -1,6 +1,7 @@
 import numpy as np
 import scipy as sp
 from copy import deepcopy
+import src.heat_equations as he
 
 
 def fractional_change(current_array, previous_array):
@@ -17,10 +18,10 @@ def fractional_change(current_array, previous_array):
 def jacobi_poisson_iteration(
     old: np.ndarray,
     source_term,
-    left_bc,
-    right_bc,
-    bottom_bc,
-    top_bc,
+    left_bcs: np.ndarray,
+    right_bcs: np.ndarray,
+    bottom_bcs: np.ndarray,
+    top_bcs: np.ndarray,
     step_width,
 ):
     """
@@ -40,11 +41,11 @@ def jacobi_poisson_iteration(
 
             # Left boundary
             if i == 0:
-                new[i][j] += 2 * old[i + 1][j] - 2 * step_width * left_bc
+                new[i][j] += 2 * old[i + 1][j] - 2 * step_width * left_bcs[j]
 
             # Right boundary
             elif i == width - 1:
-                new[i][j] += 2 * old[i - 1][j] + 2 * step_width * right_bc
+                new[i][j] += 2 * old[i - 1][j] + 2 * step_width * right_bcs[j]
 
             # Horizontally interior
             else:
@@ -52,11 +53,11 @@ def jacobi_poisson_iteration(
 
             # Bottom boundary
             if j == 0:
-                new[i][j] += 2 * old[i][j + 1] - 2 * step_width * bottom_bc
+                new[i][j] += 2 * old[i][j + 1] - 2 * step_width * bottom_bcs[i]
 
             # Top boundary
             elif j == height - 1:
-                new[i][j] += 2 * old[i][j - 1] + 2 * step_width * top_bc
+                new[i][j] += 2 * old[i][j - 1] + 2 * step_width * top_bcs[i]
 
             # Vertically interior
             else:
@@ -100,10 +101,11 @@ def jacobi_poisson_solve(
     height,
     width,
     source_term,
-    left_bc,
-    right_bc,
-    bottom_bc,
-    top_bc,
+    left_bcs,
+    right_bcs,
+    bottom_bcs,
+    top_bcs,
+    t_guess,
     step_width,
     stopping_condition,
     max_iterations,
@@ -114,8 +116,7 @@ def jacobi_poisson_solve(
     """
 
     # Initial guess
-    value = -source_term / 4
-    solution = np.full((width, height), 1)
+    solution = np.full((width, height), t_guess)
 
     # Track max iterations
     counter = 0
@@ -124,9 +125,25 @@ def jacobi_poisson_solve(
 
         # Calculating the next iteration
         solution = jacobi_poisson_iteration(
-            old_solution, source_term, left_bc, right_bc, bottom_bc, top_bc, step_width
+            old_solution,
+            source_term,
+            left_bcs,
+            right_bcs,
+            bottom_bcs,
+            top_bcs,
+            step_width,
         )
 
+        # Updating boundary conditions
+        # left_temp = np.mean(solution[0])
+        # right_temp = np.mean(solution[width - 1])
+        # bottom_temp = np.mean(solution[:, 0])
+        # top_temp = np.mean(solution[:, height - 1])
+
+        # left_bc = he.natural_dissipation(left_temp, 20) / 150  # k=150
+        # right_bc = -he.natural_dissipation(right_temp, 20) / 150
+        # bottom_bc = he.natural_dissipation(bottom_temp, 20) / 150
+        # top_bc = -he.natural_dissipation(top_temp, 20) / 150
         # Check for max iterations
         counter += 1
         if counter > max_iterations:
@@ -134,8 +151,6 @@ def jacobi_poisson_solve(
 
         # Check for convergence
         frac_change = fractional_change(solution, old_solution)
-
-        print(frac_change)
 
         if frac_change < stopping_condition:
             break

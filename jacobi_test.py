@@ -31,10 +31,11 @@ print(df)
 HEIGHT = 10
 WIDTH = 10
 SOURCE_TERM = 0
-LEFT_BC = 2
-RIGHT_BC = 2
-BOTTOM_BC = 3
-TOP_BC = 3
+left_bcs = np.full(HEIGHT, 2)
+right_bcs = np.full(HEIGHT, 2)
+bottom_bcs = np.full(WIDTH, 3)
+top_bcs = np.full(WIDTH, 3)
+T_GUESS = 25
 STEP_WIDTH = 1
 STOPPING_CONDITION = 1e-15
 MAX_ITERATIONS = 10000
@@ -43,10 +44,11 @@ solutions = jc.jacobi_poisson_solve(
     HEIGHT,
     WIDTH,
     SOURCE_TERM,
-    LEFT_BC,
-    RIGHT_BC,
-    BOTTOM_BC,
-    TOP_BC,
+    left_bcs,
+    right_bcs,
+    bottom_bcs,
+    top_bcs,
+    T_GUESS,
     STEP_WIDTH,
     STOPPING_CONDITION,
     MAX_ITERATIONS,
@@ -67,10 +69,10 @@ print(df_solutions)
 HEIGHT = 10
 WIDTH = 10
 SOURCE_TERM = 0
-LEFT_BC = 2
-RIGHT_BC = 2
-BOTTOM_BC = 3
-TOP_BC = 3
+left_bcs = np.full(HEIGHT, 2)
+right_bcs = np.full(HEIGHT, 2)
+bottom_bcs = np.full(WIDTH, 3)
+top_bcs = np.full(WIDTH, 3)
 STEP_WIDTH = 1
 STOPPING_CONDITION = 1e-10
 MAX_ITERATIONS = 10000
@@ -80,10 +82,10 @@ prev_iteration = np.full((WIDTH, HEIGHT), 1)
 iteration = jc.jacobi_poisson_iteration(
     prev_iteration,
     SOURCE_TERM,
-    LEFT_BC,
-    RIGHT_BC,
-    BOTTOM_BC,
-    TOP_BC,
+    left_bcs,
+    right_bcs,
+    bottom_bcs,
+    top_bcs,
     STEP_WIDTH,
 )
 iteration_2d = iteration.reshape((WIDTH, HEIGHT))
@@ -101,24 +103,34 @@ print(df_iteration)
 THERMAL_CONDUCTIVITY = 150
 HEIGHT = 1e-3  # in m
 WIDTH = 14e-3  # in m
-STEP_WIDTH = 1e-6  # in m
-SOURCE_TERM = 5e8 / 150
-T_SURF_0 = 50
+STEP_WIDTH = 2e-4  # in m
+SOURCE_TERM = -5e8 / 150
+T_SURF_0 = 150
 T_A = 20
+T_GUESS = 200
 
 mesh_height = round(HEIGHT / STEP_WIDTH)
 mesh_width = round(WIDTH / STEP_WIDTH)
+
+grad = he.natural_dissipation(T_SURF_0, T_A) / THERMAL_CONDUCTIVITY
+
+left_bc = grad
+right_bc = -grad
+bottom_bc = grad
+top_bc = -grad
 
 temperatures = jc.jacobi_poisson_solve(
     mesh_height,
     mesh_width,
     SOURCE_TERM,
-    T_A,
-    T_SURF_0,
+    left_bc,
+    right_bc,
+    bottom_bc,
+    top_bc,
+    T_GUESS,
     STEP_WIDTH,
-    he.natural_dissipation,
-    1e-5,
-    100000,
+    1e-6,
+    10000000,
 )
 
 print(temperatures)
