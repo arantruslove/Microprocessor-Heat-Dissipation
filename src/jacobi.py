@@ -17,7 +17,10 @@ def fractional_change(current_array, previous_array):
 def jacobi_poisson_iteration(
     old: np.ndarray,
     source_term,
-    bc_adjust,
+    left_bc,
+    right_bc,
+    bottom_bc,
+    top_bc,
     step_width,
 ):
     """
@@ -33,15 +36,15 @@ def jacobi_poisson_iteration(
     height = len(old[0])
     for i in range(width):
         for j in range(height):
-            new[i][j] += (step_width**2) * source_term
+            new[i][j] -= (step_width**2) * source_term
 
             # Left boundary
             if i == 0:
-                new[i][j] += 2 * old[i + 1][j] + 2 * step_width * bc_adjust
+                new[i][j] -= 2 * old[i + 1][j] + 2 * step_width * left_bc
 
             # Right boundary
             elif i == width - 1:
-                new[i][j] += 2 * old[i - 1][j] + 2 * step_width * bc_adjust
+                new[i][j] += 2 * old[i - 1][j] + 2 * step_width * right_bc
 
             # Horizontally interior
             else:
@@ -49,11 +52,11 @@ def jacobi_poisson_iteration(
 
             # Bottom boundary
             if j == 0:
-                new[i][j] += 2 * old[i][j + 1] + 2 * step_width * bc_adjust
+                new[i][j] -= 2 * old[i][j + 1] + 2 * step_width * bottom_bc
 
             # Top boundary
             elif j == height - 1:
-                new[i][j] += 2 * old[i][j - 1] + 2 * step_width * bc_adjust
+                new[i][j] += 2 * old[i][j - 1] + 2 * step_width * top_bc
 
             # Vertically interior
             else:
@@ -97,10 +100,11 @@ def jacobi_poisson_solve(
     height,
     width,
     source_term,
-    t_a,
-    t_surf_0,
+    left_bc,
+    right_bc,
+    bottom_bc,
+    top_bc,
     step_width,
-    dissipation_func,
     stopping_condition,
     max_iterations,
 ) -> np.ndarray:
@@ -115,21 +119,13 @@ def jacobi_poisson_solve(
 
     # Track max iterations
     counter = 0
-
-    t_surf = t_surf_0
     while True:
         old_solution = deepcopy(solution)
 
-        # Determining boundary condition
-        bc_adjust = -dissipation_func(t_surf, t_a) / 150
-
         # Calculating the next iteration
         solution = jacobi_poisson_iteration(
-            old_solution, source_term, bc_adjust, step_width
+            old_solution, source_term, left_bc, right_bc, bottom_bc, top_bc, step_width
         )
-
-        # Updating surface temperature
-        t_surf = average_surf_temp(solution)
 
         # Check for max iterations
         counter += 1
