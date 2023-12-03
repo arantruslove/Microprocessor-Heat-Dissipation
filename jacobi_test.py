@@ -1,11 +1,61 @@
 # %%
 import numpy as np
 import scipy as sp
+import pandas as pd
 import src.heat_equations as he
 import src.jacobi as jc
 
 """Testing the Jacobi module."""
 
+# %% Sanity check
+# Define the dimensions of the DataFrame
+width = 10  # Width of the grid
+height = 10  # Height of the gri
+
+# Create a grid of x and y values
+x_values = np.arange(0, width)
+y_values = np.arange(0, height)
+X, Y = np.meshgrid(x_values, y_values, indexing="ij")
+
+# Evaluate the function u(x, y) = 2x + 3y + 5
+U = 2 * X + 3 * Y + 5
+
+# Create the DataFrame
+df = pd.DataFrame(U, columns=y_values, index=x_values)
+
+# Visualize the DataFrame
+print(df)
+
+# %% Solving the above with my functions
+
+HEIGHT = 10
+WIDTH = 10
+SOURCE_TERM = 0
+LEFT_BC = 2
+RIGHT_BC = 2
+BOTTOM_BC = 3
+TOP_BC = 3
+STEP_WIDTH = 1
+STOPPING_CONDITION = 1e-10
+MAX_ITERATIONS = 10000
+
+solution = jc.jacobi_poisson_solve(
+    HEIGHT,
+    WIDTH,
+    SOURCE_TERM,
+    LEFT_BC,
+    RIGHT_BC,
+    BOTTOM_BC,
+    TOP_BC,
+    STEP_WIDTH,
+    STOPPING_CONDITION,
+    MAX_ITERATIONS,
+)
+
+offset = 5 - solution[0][0]
+solution += offset
+
+print(solution)
 # %% Testing a single iteration of a 3x3 grid to see if it is working as expected
 
 THERMAL_CONDUCTIVITY = 150
