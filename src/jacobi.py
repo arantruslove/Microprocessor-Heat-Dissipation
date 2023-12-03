@@ -16,7 +16,6 @@ def fractional_change(current_array, previous_array):
 
 def jacobi_poisson_iteration(
     old: np.ndarray,
-    u0: np.ndarray,
     source_term,
     bc_adjust,
     step_width,
@@ -61,7 +60,6 @@ def jacobi_poisson_iteration(
                 new[i][j] += old[i][j - 1] + old[i][j + 1]
 
             new[i][j] /= 4
-            new[i][j] += u0[i][j]
 
     return new
 
@@ -112,9 +110,8 @@ def jacobi_poisson_solve(
     """
 
     # Initial guess
-    row = [source_term / 4] * height
-    u0 = np.array([row] * width)
-    solution = np.array([row] * width)
+    value = source_term / 4
+    solution = np.full((width, height), value)
 
     # Track max iterations
     counter = 0
@@ -128,11 +125,11 @@ def jacobi_poisson_solve(
 
         # Calculating the next iteration
         solution = jacobi_poisson_iteration(
-            old_solution, u0, source_term, bc_adjust, step_width
+            old_solution, source_term, bc_adjust, step_width
         )
 
         # Updating surface temperature
-        t_surf = solution[0][0]
+        t_surf = average_surf_temp(solution)
 
         # Check for max iterations
         counter += 1

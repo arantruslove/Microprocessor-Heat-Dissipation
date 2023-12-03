@@ -19,10 +19,9 @@ neumann_bc = (
 print(neumann_bc)
 
 row = [SOURCE_TERM / 4] * MESH_HEIGHT
-u0 = np.array([row] * MESH_WIDTH)
 solution = np.array([row] * MESH_WIDTH)
 
-result = jc.jacobi_poisson_iteration(solution, u0, SOURCE_TERM, neumann_bc, STEP_WIDTH)
+result = jc.jacobi_poisson_iteration(solution, SOURCE_TERM, neumann_bc, STEP_WIDTH)
 
 print(result)
 
@@ -31,9 +30,9 @@ print(result)
 THERMAL_CONDUCTIVITY = 150
 HEIGHT = 1e-3  # in m
 WIDTH = 14e-3  # in m
-STEP_WIDTH = 1e-4  # in m
+STEP_WIDTH = 1e-6  # in m
 SOURCE_TERM = 5e8 / 150
-T_SURF_0 = 1000
+T_SURF_0 = 50
 T_A = 20
 
 mesh_height = round(HEIGHT / STEP_WIDTH)
@@ -47,7 +46,7 @@ temperatures = jc.jacobi_poisson_solve(
     T_SURF_0,
     STEP_WIDTH,
     he.natural_dissipation,
-    1e-3,
+    1e-5,
     100000,
 )
 
