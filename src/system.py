@@ -22,9 +22,10 @@ class Object:
         - thermal_conductivity in W/mK
         - thermal_output in W/m^3
         """
-        self.width = width
-        self.height = height
-        self.bl = bottom_left
+        self.xmin = bottom_left[0]
+        self.xmax = bottom_left[0] + width
+        self.ymin = bottom_left[1]
+        self.ymax = bottom_left[1] + height
         self.k = thermal_conductivity
         self.power = thermal_output
         self.colour = colour
@@ -62,14 +63,14 @@ class MicroprocessorSystem:
 
         # Find the maximum width and height to set the plot limits
         for obj in self.objects:
-            if obj.bl[0] + obj.width > max_width:
-                max_width = obj.bl[0] + obj.width
-            if obj.bl[1] + obj.height > max_height:
-                max_height = obj.bl[1] + obj.height
+            if obj.xmax > max_width:
+                max_width = obj.xmax
+            if obj.ymax > max_height:
+                max_height = obj.ymax
 
         # Determine the minimum bounds to cover the negative direction
-        min_width = min(obj.bl[0] for obj in self.objects)
-        min_height = min(obj.bl[1] for obj in self.objects)
+        min_width = min(obj.xmin for obj in self.objects)
+        min_height = min(obj.ymin for obj in self.objects)
 
         # Set plot limits based on the objects and grid
         ax.set_xlim(min_width - 0.001, max_width + 0.001)
@@ -111,10 +112,12 @@ class MicroprocessorSystem:
         for obj in self.objects:
             # Create a rectangle patch with a semi-transparent color and add it to the
             # plot
+            width = obj.xmax - obj.xmin
+            height = obj.ymax - obj.ymin
             rect = patches.Rectangle(
-                obj.bl,
-                obj.width,
-                obj.height,
+                (obj.xmin, obj.ymin),
+                width,
+                height,
                 linewidth=1,
                 edgecolor=obj.colour,
                 facecolor=obj.colour,
