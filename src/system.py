@@ -33,6 +33,8 @@ class Object:
 
 class MicroprocessorSystem:
     def __init__(self, scenario: int):
+        self.temps = [[]]
+
         if scenario > 3:
             raise RuntimeError("There are only 4 physical scenarios")
 
@@ -51,6 +53,32 @@ class MicroprocessorSystem:
             """Microprocessor, ceramic case and heat sink."""
             processor = Object((0, 0), 14e-3, 1e-3, 150, 5e8, colour="orange")
             ceramic_case = Object((-3e-3, 1e-3), 20e-3, 2e-3, 230, 0, colour="grey")
+
+    def create_mesh(self, step_size):
+        """Generates the shape of the mesh size."""
+
+        # Determining the extreme coordinates of the system
+        xmin, xmax, ymin, ymax = (
+            self.objects[0].xmin,
+            self.objects[0].xmax,
+            self.objects[0].ymin,
+            self.objects[0].ymax,
+        )
+
+        for obj in self.objects:
+            if obj.xmin < xmin:
+                xmin = obj.xmin
+            if obj.xmax > xmax:
+                xmax = obj.xmax
+            if obj.ymin < ymin:
+                ymin = obj.ymin
+            if obj.ymax > ymax:
+                ymax = obj.ymax
+
+        width = round((xmax - xmin) // step_size + 1)
+        height = round((ymax - ymin) // step_size + 1)
+
+        return np.zeros((height, width))
 
     def plot(self, step_size=None):
         """
