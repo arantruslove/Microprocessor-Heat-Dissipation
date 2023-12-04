@@ -4,6 +4,30 @@ import matplotlib.patches as patches
 import numpy as np
 
 
+# Functions
+def determine_extremes(objects):
+    "Determines the global extreme values from a system of objects."
+    xmin, xmax, ymin, ymax = (
+        objects[0].xmin,
+        objects[0].xmax,
+        objects[0].ymin,
+        objects[0].ymax,
+    )
+
+    for obj in objects:
+        if obj.xmin < xmin:
+            xmin = obj.xmin
+        if obj.xmax > xmax:
+            xmax = obj.xmax
+        if obj.ymin < ymin:
+            ymin = obj.ymin
+        if obj.ymax > ymax:
+            ymax = obj.ymax
+
+    return xmin, xmax, ymin, ymax
+
+
+# Classes
 class Object:
     def __init__(
         self,
@@ -55,29 +79,13 @@ class MicroprocessorSystem:
             ceramic_case = Object((-3e-3, 1e-3), 20e-3, 2e-3, 230, 0, colour="grey")
 
     def create_mesh(self, step_size):
-        """Generates the shape of the mesh size."""
+        """Generates a mesh of zeros that overlays the complete system"""
 
-        # Determining the extreme coordinates of the system
-        xmin, xmax, ymin, ymax = (
-            self.objects[0].xmin,
-            self.objects[0].xmax,
-            self.objects[0].ymin,
-            self.objects[0].ymax,
-        )
-
-        for obj in self.objects:
-            if obj.xmin < xmin:
-                xmin = obj.xmin
-            if obj.xmax > xmax:
-                xmax = obj.xmax
-            if obj.ymin < ymin:
-                ymin = obj.ymin
-            if obj.ymax > ymax:
-                ymax = obj.ymax
-
-        width = round((xmax - xmin) // step_size + 1)
-        height = round((ymax - ymin) // step_size + 1)
-
+        xmin, xmax, ymin, ymax = determine_extremes(self.objects)
+        x_values = np.arange(xmin, xmax + step_size, step_size)
+        y_values = np.arange(ymin, ymax + step_size, step_size)
+        width = x_values.size
+        height = y_values.size
         return np.zeros((height, width))
 
     def plot(self, step_size=None):
@@ -86,35 +94,25 @@ class MicroprocessorSystem:
         plots the position of the mesh points using lines instead of scatter points.
         """
         fig, ax = plt.subplots()
-        max_width = 0
-        max_height = 0
 
-        # Find the maximum width and height to set the plot limits
-        for obj in self.objects:
-            if obj.xmax > max_width:
-                max_width = obj.xmax
-            if obj.ymax > max_height:
-                max_height = obj.ymax
-
-        # Determine the minimum bounds to cover the negative direction
-        min_width = min(obj.xmin for obj in self.objects)
-        min_height = min(obj.ymin for obj in self.objects)
+        # Assuming determine_extremes is a function that returns the extreme points
+        xmin, xmax, ymin, ymax = determine_extremes(self.objects)
 
         # Set plot limits based on the objects and grid
-        ax.set_xlim(min_width - 0.001, max_width + 0.001)
-        ax.set_ylim(min_height - 0.001, max_height + 0.001)
+        ax.set_xlim(xmin - 0.001, xmax + 0.001)
+        ax.set_ylim(ymin - 0.001, ymax + 0.001)
 
         # Define the grid range and spacing
         if step_size:
-            # Define the grid lines
-            grid_x = np.arange(min_width, max_width + step_size, step_size)
-            grid_y = np.arange(min_height, max_height + step_size, step_size)
+            # Define the grid lines starting from (xmin, ymin)
+            grid_x = np.arange(xmin, xmax + step_size, step_size)
+            grid_y = np.arange(ymin, ymax + step_size, step_size)
 
-            # Draw grid lines instead of scatter
+            # Draw grid lines
             ax.vlines(
                 grid_x,
-                min_height - step_size,
-                max_height + step_size,
+                ymin,
+                ymax,
                 colors="red",
                 linestyles="solid",
                 linewidth=0.5,
@@ -122,8 +120,8 @@ class MicroprocessorSystem:
             )
             ax.hlines(
                 grid_y,
-                min_width - step_size,
-                max_width + step_size,
+                xmin,
+                xmax,
                 colors="red",
                 linestyles="solid",
                 linewidth=0.5,
