@@ -59,6 +59,80 @@ def create_mesh(objects, step_size):
     return np.zeros((width, height))
 
 
+def add_operation_numbers(binary_mesh: np.ndarray) -> np.ndarray:
+    """
+    Converts a binary mesh representing the shape of the system to a mesh that
+    contains different numbers based on which type of operation should be carried out.
+    Operation table:
+
+    0: No operation (air)
+    1: Interior point
+    2: Left boundary
+    3: Right boundary
+    4: Bottom boundary
+    5: Top boundary
+    6: Bottom-left corner
+    7: Bottom-right corner
+    8: Top-left corner
+    9: Top-right corner
+    """
+    operation_mesh = binary_mesh.copy()
+    width = len(operation_mesh)
+    height = len(operation_mesh[0])
+
+    for i in range(len(operation_mesh)):
+        for j in range(len(operation_mesh[0])):
+            if operation_mesh[i][j] == 1:
+                # Boundary checks
+                is_left = i == 0
+                is_right = i == width - 1
+                is_bottom = j == 0
+                is_top = j == height - 1
+
+                if i != 0:
+                    is_left = operation_mesh[i - 1][j] == 0
+                if i != width - 1:
+                    is_right = operation_mesh[i + 1][j] == 0
+                if j != 0:
+                    is_bottom = operation_mesh[i][j - 1] == 0
+                if j != height - 1:
+                    is_top = operation_mesh[i][j + 1] == 0
+
+                # Bottom-left corner
+                if is_bottom and is_left:
+                    operation_mesh[i][j] = 6
+
+                # Bottom-right corner
+                elif is_bottom and is_right:
+                    operation_mesh[i][j] = 7
+
+                # Top-left corner
+                elif is_top and is_left:
+                    operation_mesh[i][j] = 8
+
+                # Top-right corner
+                elif is_top and is_right:
+                    operation_mesh[i][j] = 9
+
+                # Left boundary
+                elif is_left:
+                    operation_mesh[i][j] = 2
+
+                # Right boundary
+                elif is_right:
+                    operation_mesh[i][j] = 3
+
+                # Bottom boundary
+                elif is_bottom:
+                    operation_mesh[i][j] = 4
+
+                # Top boundary
+                elif is_top:
+                    operation_mesh[i][j] = 5
+
+    return operation_mesh
+
+
 # Classes
 class Object:
     def __init__(
@@ -117,7 +191,7 @@ class MicroprocessorSystem:
         """
         # Initialising meshes
         base = create_mesh(self.objects, step_size)
-        temps = base.copy()
+        binary_mesh = base.copy()  # Binary mask of combined system objects
         power_outputs = base.copy()
         thermal_conductivities = base.copy()
 
@@ -130,18 +204,38 @@ class MicroprocessorSystem:
             xmax = bounds[i]["xmax"]
             ymin = bounds[i]["ymin"]
             ymax = bounds[i]["ymax"]
+            binary_mesh[xmin : xmax + 1, ymin : ymax + 1] = 1
             power_outputs[xmin : xmax + 1, ymin : ymax + 1] = self.objects[i].power
             thermal_conductivities[xmin : xmax + 1, ymin : ymax + 1] = self.objects[i].k
 
+        operation_mesh = add_operation_numbers(binary_mesh)
+
         return (
-            np.flipud(temps.T),
+            np.flipud(operation_mesh.T),
             np.flipud(power_outputs.T),
             np.flipud(thermal_conductivities.T),
         )
 
-    def determine_bnds(self, step_size):
-        """Determines the bounding indices of the objects."""
-        return all_object_bnds(self.objects, step_size)
+    def determine_edges(self, step_size):
+        """Determines the edge positions indices of the combined systems."""
+        bounds = all_object_bnds(self.objects, step_size)
+
+        edges = []
+        for bound in bounds:
+            xmin, xmax, ymin, ymax = (
+                bound["xmin"],
+                bound["xmax"],
+                bound["ymin"],
+                bound["ymax"],
+            )
+
+            left_edge = ((xmin, ymin), (xmin, ymax))
+            right_edge = ((xmax, ymin), (xmax, ymax))
+            bottom_edge = ((xmin, ymin), (xmax, ymin))
+            top_edge = ((xmin, ymax), (xmax, ymax))
+            edges += [left_edge, right_edge, bottom_edge, top_edge]
+
+        return edges
 
     def solve_system(self):
         """
