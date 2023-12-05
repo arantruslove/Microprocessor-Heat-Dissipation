@@ -27,6 +27,38 @@ def determine_extremes(objects):
     return xmin, xmax, ymin, ymax
 
 
+def all_object_bnds(objects, step_size: float) -> list[dict]:
+    """
+    Converts between distance bounds to indices of all the objects in the list.
+    - xmin
+    - xmax
+    - ymin
+    - ymax
+    """
+    xmin, xmax, ymin, ymax = determine_extremes(objects)
+    origin = (xmin, ymin)
+    all_bounds = []
+    for obj in objects:
+        extremes = {}
+        extremes["xmin"] = round((obj.xmin - origin[0]) / step_size)
+        extremes["xmax"] = round((obj.xmax - origin[0]) / step_size)
+        extremes["ymin"] = round((obj.ymin - origin[1]) / step_size)
+        extremes["ymax"] = round((obj.ymax - origin[1]) / step_size)
+        all_bounds.append(extremes)
+    return all_bounds
+
+
+def create_mesh(objects, step_size):
+    """Generates a mesh of zeros that overlays the complete system of objects."""
+
+    xmin, xmax, ymin, ymax = determine_extremes(objects)
+    x_values = np.arange(xmin, xmax + step_size, step_size)
+    y_values = np.arange(ymin, ymax + step_size, step_size)
+    width = x_values.size
+    height = y_values.size
+    return np.zeros((width, height))
+
+
 # Classes
 class Object:
     def __init__(
@@ -78,15 +110,44 @@ class MicroprocessorSystem:
             processor = Object((0, 0), 14e-3, 1e-3, 150, 5e8, colour="orange")
             ceramic_case = Object((-3e-3, 1e-3), 20e-3, 2e-3, 230, 0, colour="grey")
 
-    def create_mesh(self, step_size):
-        """Generates a mesh of zeros that overlays the complete system"""
+    def example_meshes(self, step_size):
+        """
+        Generates the example meshes that will be used for temperature, thermal output
+        and thermal conductivity for the entire system.
+        """
+        # Initialising meshes
+        base = create_mesh(self.objects, step_size)
+        temps = base.copy()
+        power_outputs = base.copy()
+        thermal_conductivities = base.copy()
 
-        xmin, xmax, ymin, ymax = determine_extremes(self.objects)
-        x_values = np.arange(xmin, xmax + step_size, step_size)
-        y_values = np.arange(ymin, ymax + step_size, step_size)
-        width = x_values.size
-        height = y_values.size
-        return np.zeros((height, width))
+        # Determining bounds
+        bounds = all_object_bnds(self.objects, step_size)
+
+        # Populating power outputs and thermal conductivities with values
+        for i in range(len(self.objects)):
+            xmin = bounds[i]["xmin"]
+            xmax = bounds[i]["xmax"]
+            ymin = bounds[i]["ymin"]
+            ymax = bounds[i]["ymax"]
+            power_outputs[xmin : xmax + 1, ymin : ymax + 1] = self.objects[i].power
+            thermal_conductivities[xmin : xmax + 1, ymin : ymax + 1] = self.objects[i].k
+
+        return (
+            np.flipud(temps.T),
+            np.flipud(power_outputs.T),
+            np.flipud(thermal_conductivities.T),
+        )
+
+    def determine_bnds(self, step_size):
+        """Determines the bounding indices of the objects."""
+        return all_object_bnds(self.objects, step_size)
+
+    def solve_system(self):
+        """
+        Solves the Poisson heat equation of the microprocessor system by using the
+        Jacobi method.
+        """
 
     def plot(self, step_size=None):
         """
