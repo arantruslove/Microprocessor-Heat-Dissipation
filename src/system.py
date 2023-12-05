@@ -170,19 +170,19 @@ class MicroprocessorSystem:
 
         if scenario == 1:
             """Microprocessor alone."""
-            processor = Object((0, 0), 14e-3, 1e-3, 150, 5e8, colour="orange")
+            processor = Object((0, 0), 14e-3, 1e-3, 150, 5e8, colour="black")
             self.objects = [processor]
 
         if scenario == 2:
             """Microprocessor and ceramic case."""
-            processor = Object((0, 0), 14e-3, 1e-3, 150, 5e8, colour="orange")
-            ceramic_case = Object((-3e-3, 1e-3), 20e-3, 2e-3, 230, 0, colour="grey")
+            processor = Object((0, 0), 14e-3, 1e-3, 150, 5e8, colour="black")
+            ceramic_case = Object((-3e-3, 1e-3), 20e-3, 2e-3, 230, 0, colour="orange")
             self.objects = [processor, ceramic_case]
 
         if scenario == 3:
             """Microprocessor, ceramic case and heat sink."""
-            processor = Object((0, 0), 14e-3, 1e-3, 150, 5e8, colour="orange")
-            ceramic_case = Object((-3e-3, 1e-3), 20e-3, 2e-3, 230, 0, colour="grey")
+            processor = Object((0, 0), 14e-3, 1e-3, 150, 5e8, colour="black")
+            ceramic_case = Object((-3e-3, 1e-3), 20e-3, 2e-3, 230, 0, colour="orange")
 
     def example_meshes(self, step_size):
         """
