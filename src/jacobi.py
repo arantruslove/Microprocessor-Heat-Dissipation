@@ -1,7 +1,5 @@
 import numpy as np
-from copy import deepcopy
 from typing import Callable
-import src.heat_equations as he
 
 
 def fractional_change(current_array, previous_array):
@@ -42,21 +40,6 @@ def average_surf_temp(temperatures: np.ndarray):
 
     average_temp = np.mean(surface_temps)
     return average_temp
-
-
-def natural_bcs(temperatures: np.ndarray):
-    """
-    Determines the Neumann boundary conditions for each of the sides of the
-    boundaries. Uses ambient temperature at 20 degrees celcius and 150 W/mK for thermal
-    conductivity.
-    """
-    ambient = 20
-    left_bcs = he.natural_dissipation(temperatures[0], ambient) / 150
-    right_bcs = -he.natural_dissipation(temperatures[-1], ambient) / 150
-    bottom_bcs = he.natural_dissipation(temperatures[:, 0], ambient) / 150
-    top_bcs = -he.natural_dissipation(temperatures[:, -1], ambient) / 150
-
-    return left_bcs, right_bcs, bottom_bcs, top_bcs
 
 
 def next_interior(
