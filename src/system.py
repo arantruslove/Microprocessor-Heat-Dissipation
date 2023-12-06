@@ -133,6 +133,37 @@ def add_operation_numbers(binary_mesh: np.ndarray) -> np.ndarray:
     return operation_mesh
 
 
+def generate_masks(objects, step_size):
+    """
+    Generates these masks which will be utilised in the Poisson heat equation solver:
+    - operation_mask:    Type of operation from 0 to 9 for each coordinate.
+    - power_mask:        Power output for each coordinate.
+    - conduvtivity_mask: Conductivity for each coordinate.
+    """
+    # Initialising meshes
+    base = create_mesh(objects, step_size)
+    binary_mask = base.copy()  # Binary mask of combined system objects
+    power_mask = base.copy()
+    conductivity_mask = base.copy()
+
+    # Determining bounds
+    bounds = all_object_bnds(objects, step_size)
+
+    # Populating power outputs and thermal conductivities with values
+    for i in range(len(objects)):
+        xmin = bounds[i]["xmin"]
+        xmax = bounds[i]["xmax"]
+        ymin = bounds[i]["ymin"]
+        ymax = bounds[i]["ymax"]
+        binary_mask[xmin : xmax + 1, ymin : ymax + 1] = 1
+        power_mask[xmin : xmax + 1, ymin : ymax + 1] = objects[i].power
+        conductivity_mask[xmin : xmax + 1, ymin : ymax + 1] = objects[i].k
+
+    operation_mask = add_operation_numbers(binary_mask)
+
+    return operation_mask, power_mask, conductivity_mask
+
+
 # Classes
 class Object:
     def __init__(
@@ -184,36 +215,21 @@ class MicroprocessorSystem:
             processor = Object((0, 0), 14e-3, 1e-3, 150, 5e8, colour="black")
             ceramic_case = Object((-3e-3, 1e-3), 20e-3, 2e-3, 230, 0, colour="orange")
 
-    def example_meshes(self, step_size):
+    def example_masks(self, step_size):
         """
-        Generates the example meshes that will be used for temperature, thermal output
-        and thermal conductivity for the entire system.
+        Generates the three example masks used in the iterative Poisson equation
+        solver for testing.
         """
-        # Initialising meshes
-        base = create_mesh(self.objects, step_size)
-        binary_mesh = base.copy()  # Binary mask of combined system objects
-        power_outputs = base.copy()
-        thermal_conductivities = base.copy()
+        operation_mask, power_mask, conductivity_mask = generate_masks(
+            self.objects, step_size
+        )
 
-        # Determining bounds
-        bounds = all_object_bnds(self.objects, step_size)
-
-        # Populating power outputs and thermal conductivities with values
-        for i in range(len(self.objects)):
-            xmin = bounds[i]["xmin"]
-            xmax = bounds[i]["xmax"]
-            ymin = bounds[i]["ymin"]
-            ymax = bounds[i]["ymax"]
-            binary_mesh[xmin : xmax + 1, ymin : ymax + 1] = 1
-            power_outputs[xmin : xmax + 1, ymin : ymax + 1] = self.objects[i].power
-            thermal_conductivities[xmin : xmax + 1, ymin : ymax + 1] = self.objects[i].k
-
-        operation_mesh = add_operation_numbers(binary_mesh)
-
+        # Transposing and flipping to ensure output mask orientation matches with the
+        # system spatially
         return (
-            np.flipud(operation_mesh.T),
-            np.flipud(power_outputs.T),
-            np.flipud(thermal_conductivities.T),
+            np.flipud(operation_mask.T),
+            np.flipud(power_mask.T),
+            np.flipud(conductivity_mask.T),
         )
 
     def solve_system(self):

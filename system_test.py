@@ -8,7 +8,7 @@ basic_sys = sys.MicroprocessorSystem(2)
 basic_sys.plot(step_size=step_size)
 
 # %% Testing the example meshes
-operation_mesh, power_mesh, conductivity_mesh = basic_sys.example_meshes(step_size)
+operation_mask, power_mask, conductivity_mask = basic_sys.example_masks(step_size)
 
 # %% Determining edges of the system
 
