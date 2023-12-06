@@ -17,7 +17,7 @@ print(edges)
 
 # %% Testing the Jacobi Poisson solver
 basic_sys = sys.MicroprocessorSystem(2)
-temps = basic_sys.solve_system(20, 0.001, 1e-6, 1)
+temps = basic_sys.solve_system(3100, 0.0001, 1e-13, 100000)
 
 temps_display = np.flipud(temps.T)
 

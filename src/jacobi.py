@@ -110,7 +110,7 @@ def next_left(
         + k_btm * t_btm
         + k_top * t_top
         + step_size**2 * power
-        - 2 * step_size * boundary(t_centre, k_centre)
+        - 2 * step_size * boundary(t_centre)
     )
 
 
@@ -138,7 +138,7 @@ def next_right(
         + k_btm * t_btm
         + k_top * t_top
         + step_size**2 * power
-        - 2 * step_size * boundary(t_centre, k_centre)
+        - 2 * step_size * boundary(t_centre)
     )
 
 
@@ -166,7 +166,7 @@ def next_btm(
         + k_right * t_right
         + (k_centre + k_top) * t_top
         + step_size**2 * power
-        - 2 * step_size * boundary(t_centre, k_centre)
+        - 2 * step_size * boundary(t_centre)
     )
 
 
@@ -194,7 +194,7 @@ def next_top(
         + k_right * t_right
         + (k_centre + k_btm) * t_btm
         + step_size**2 * power
-        - 2 * step_size * boundary(t_centre, k_centre)
+        - 2 * step_size * boundary(t_centre)
     )
 
 
@@ -219,7 +219,7 @@ def next_btm_left(
         (k_centre + k_right) * t_right
         + (k_centre + k_top) * t_top
         + step_size**2 * power
-        - 4 * step_size * boundary(t_centre, k_centre)
+        - 4 * step_size * boundary(t_centre)
     )
 
 
@@ -244,7 +244,7 @@ def next_btm_right(
         (k_centre + k_left) * t_left
         + (k_centre + k_top) * t_top
         + step_size**2 * power
-        - 4 * step_size * boundary(t_centre, k_centre)
+        - 4 * step_size * boundary(t_centre)
     )
 
 
@@ -269,7 +269,7 @@ def next_top_left(
         (k_centre + k_right) * t_right
         + (k_centre + k_btm) * t_btm
         + step_size**2 * power
-        - 4 * step_size * boundary(t_centre, k_centre)
+        - 4 * step_size * boundary(t_centre)
     )
 
 
@@ -294,7 +294,7 @@ def next_top_right(
         (k_centre + k_left) * t_left
         + (k_centre + k_btm) * t_btm
         + step_size**2 * power
-        - 4 * step_size * boundary(t_centre, k_centre)
+        - 4 * step_size * boundary(t_centre)
     )
 
 
