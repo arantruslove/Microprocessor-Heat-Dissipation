@@ -216,31 +216,10 @@ class MicroprocessorSystem:
             np.flipud(thermal_conductivities.T),
         )
 
-    def determine_edges(self, step_size):
-        """Determines the edge positions indices of the combined systems."""
-        bounds = all_object_bnds(self.objects, step_size)
-
-        edges = []
-        for bound in bounds:
-            xmin, xmax, ymin, ymax = (
-                bound["xmin"],
-                bound["xmax"],
-                bound["ymin"],
-                bound["ymax"],
-            )
-
-            left_edge = ((xmin, ymin), (xmin, ymax))
-            right_edge = ((xmax, ymin), (xmax, ymax))
-            bottom_edge = ((xmin, ymin), (xmax, ymin))
-            top_edge = ((xmin, ymax), (xmax, ymax))
-            edges += [left_edge, right_edge, bottom_edge, top_edge]
-
-        return edges
-
     def solve_system(self):
         """
-        Solves the Poisson heat equation of the microprocessor system by using the
-        Jacobi method.
+        Solves the Poisson heat equation of the microprocessor system via the Jacobi
+        method.
         """
 
     def plot(self, step_size=None):
