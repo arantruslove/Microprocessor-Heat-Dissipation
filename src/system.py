@@ -2,6 +2,8 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
+from . import jacobi as jc
+from . import heat_equations as he
 
 
 # Functions
@@ -232,11 +234,28 @@ class MicroprocessorSystem:
             np.flipud(conductivity_mask.T),
         )
 
-    def solve_system(self):
+    def solve_system(self, initial_temp, step_size, stopping_condition, max_iterations):
         """
         Solves the Poisson heat equation of the microprocessor system via the Jacobi
         method.
         """
+        op_mask, pow_mask, k_mask = generate_masks(self.objects, step_size)
+
+        initial_guess = create_mesh(self.objects, step_size)
+        initial_guess[:, :] = initial_temp
+
+        temperatures = jc.jacobi_poisson_solve(
+            initial_guess,
+            op_mask,
+            pow_mask,
+            k_mask,
+            step_size,
+            stopping_condition,
+            max_iterations,
+            he.natural_dissipation,
+        )
+
+        return temperatures
 
     def plot(self, step_size=None):
         """

@@ -1,9 +1,10 @@
-def natural_dissipation(surface_temp, ambient_temp):
+def natural_dissipation(surface_temp, thermal_conductivity):
     """
-    Heat dissipation rate as a result of natural convection.
-    surface_temp and ambient_temp in units of degrees celcius.
+    Heat dissipation gradient as a result of natural convection.
+    surface_temp in units of degrees celcius.
     """
-    return 1.31 * (surface_temp - ambient_temp) ** (4 / 3)
+    phi = 1.31 * (surface_temp - 20) ** (4 / 3)
+    return phi / thermal_conductivity
 
 
 def forced_dissipation(surface_temp, ambient_temp, wind_speed):
