@@ -270,16 +270,23 @@ class MicroprocessorSystem:
             np.flipud(conductivity_mask.T),
         )
 
-    def solve_system(self, initial_temp, step_size, stopping_condition, max_iterations):
+    def solve_system(
+        self, initial_temp, step_size, stopping_condition, max_iterations, forced=False
+    ):
         """
         Solves the Poisson heat equation of the microprocessor system via the Jacobi
         method.
         """
+        # Generating masks and initial guesses
         op_mask, pow_mask, k_mask = generate_masks(self.objects, step_size)
-
         initial_guess = create_mesh(self.objects, step_size)
         initial_guess[:, :] = initial_temp
 
+        # Choosing either forced or natural convection
+        if forced:
+            boundary = he.forced_dissipation
+        else:
+            boundary = he.natural_dissipation
         temperatures = jc.jacobi_poisson_solve(
             initial_guess,
             op_mask,
@@ -288,7 +295,7 @@ class MicroprocessorSystem:
             step_size,
             stopping_condition,
             max_iterations,
-            he.natural_dissipation,
+            boundary,
         )
 
         return temperatures

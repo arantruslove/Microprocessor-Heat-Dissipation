@@ -6,6 +6,9 @@ def natural_dissipation(surface_temp):
     return 1.31 * (surface_temp - 20) ** (4 / 3)
 
 
-def forced_dissipation(surface_temp, ambient_temp, wind_speed):
-    """Heat dissipation rate as a result of forced convection."""
-    return (11.4 + 5.7 * wind_speed) * (surface_temp - ambient_temp)
+def forced_dissipation(surface_temp):
+    """
+    Heat flux as a result of forced convection with a windspeed of 20 degrees
+    celcius.
+    """
+    return 125.4 * (surface_temp - 20)

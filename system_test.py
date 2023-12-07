@@ -28,7 +28,7 @@ edges = basic_sys.determine_edges(step_size=step_size)
 print(edges)
 
 # %% Testing the Jacobi Poisson solver
-step_size = 0.001
+step_size = 0.0001
 base_width = 34e-3
 fin_height = 30e-3
 fin_width = 1e-3
@@ -41,7 +41,12 @@ basic_sys = sys.MicroprocessorSystem(
     fin_width=fin_width,
     fin_spacing=fin_spacing,
 )
-temps = basic_sys.solve_system(280, 0.001, 1e-9, 100000)
+
+# Plotting
+basic_sys.plot()
+
+# Solving
+temps = basic_sys.solve_system(80, 0.0001, 1e-15, 100000, forced=True)
 temps_display = np.flipud(temps.T)
 
 # %% Profiling the operation
