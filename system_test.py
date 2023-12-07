@@ -10,7 +10,7 @@ fin_height = 30e-3
 fin_width = 1e-3
 fin_spacing = 2e-3
 basic_sys = sys.MicroprocessorSystem(
-    3,
+    1,
     base_width=base_width,
     fin_height=fin_height,
     fin_width=fin_width,
@@ -18,24 +18,21 @@ basic_sys = sys.MicroprocessorSystem(
 )
 basic_sys.plot(step_size=step_size)
 
+basic_sys.solve_system(30, step_size, 1e-6, 0)
+
 
 # %% Testing the example meshes
 operation_mask, power_mask, conductivity_mask = basic_sys.example_masks(step_size)
 
-# %% Determining edges of the system
-
-edges = basic_sys.determine_edges(step_size=step_size)
-print(edges)
-
 # %% Testing the Jacobi Poisson solver
-step_size = 0.0001
-base_width = 34e-3
+step_size = 0.001
+base_width = 16e-3
 fin_height = 30e-3
 fin_width = 1e-3
 fin_spacing = 2e-3
 
 basic_sys = sys.MicroprocessorSystem(
-    3,
+    1,
     base_width=base_width,
     fin_height=fin_height,
     fin_width=fin_width,
@@ -43,11 +40,12 @@ basic_sys = sys.MicroprocessorSystem(
 )
 
 # Plotting
-basic_sys.plot()
+basic_sys.plot(step_size=step_size)
 
 # Solving
-temps = basic_sys.solve_system(80, 0.0001, 1e-15, 100000, forced=True)
-temps_display = np.flipud(temps.T)
+basic_sys.solve_system(20, step_size, 1e-6, 100000, forced=False)
+temps = basic_sys.output_temps()
+
 
 # %% Profiling the operation
 basic_sys = sys.MicroprocessorSystem(2)

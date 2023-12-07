@@ -206,7 +206,7 @@ class MicroprocessorSystem:
         Scenario 3 requires four keyword arguments:
         base_width, fin_height, fin_width, spacing
         """
-        self.temps = [[]]
+        self.temps = []
 
         if scenario > 3:
             raise RuntimeError("There are only 4 physical scenarios")
@@ -277,6 +277,11 @@ class MicroprocessorSystem:
         Solves the Poisson heat equation of the microprocessor system via the Jacobi
         method.
         """
+        # Microprocessor index bounds
+        all_bounds = all_object_bnds(self.objects, step_size)
+        processor_bounds = all_bounds[0]
+        print(processor_bounds)
+
         # Generating masks and initial guesses
         op_mask, pow_mask, k_mask = generate_masks(self.objects, step_size)
         initial_guess = create_mesh(self.objects, step_size)
@@ -292,13 +297,25 @@ class MicroprocessorSystem:
             op_mask,
             pow_mask,
             k_mask,
+            processor_bounds,
             step_size,
             stopping_condition,
             max_iterations,
             boundary,
         )
 
-        return temperatures
+        self.temps = temperatures
+
+    def output_temps(self):
+        """
+        Returns the temperature grid of the microprocessor system once it has
+        been solved. Transposes and flips the temperatures so that they align with the
+        spatial orientation of the system.
+        """
+        if len(self.temps) == 0:
+            raise RuntimeError("The system has not been solved")
+
+        return np.flipud(self.temps.T)
 
     def plot(self, step_size=None):
         """

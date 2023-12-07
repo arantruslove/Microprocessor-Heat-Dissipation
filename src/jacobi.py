@@ -439,6 +439,7 @@ def jacobi_poisson_solve(
     op_mask: np.ndarray,
     pow_mask: np.ndarray,
     k_mask: np.ndarray,
+    convergence_region: dict,
     step_size,
     stopping_condition,
     max_iterations,
@@ -448,6 +449,12 @@ def jacobi_poisson_solve(
     Solves the poisson equation using the jacobi method. Applies Neumann boundary
     conditions.
     """
+    # Microprocessor index bounds
+    xmin = convergence_region["xmin"]
+    xmax = convergence_region["xmax"]
+    ymin = convergence_region["ymin"]
+    ymax = convergence_region["ymax"]
+
     # Determining the mask of thermal conductivities to the left, right, bottom and top
     # of their original points
     k_left = np.roll(k_mask, 1, axis=0)
@@ -482,8 +489,10 @@ def jacobi_poisson_solve(
             print("Max iterations reached")
             break
 
-        # Check for convergence
-        frac_change = fractional_change(solution, old_solution)
+        # Check for convergence of microprocessor temperatures
+        frac_change = fractional_change(
+            solution[xmin:xmax, ymin:ymax], old_solution[xmin:xmax, ymin:ymax]
+        )
         if frac_change < stopping_condition:
             break
 
