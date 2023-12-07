@@ -227,17 +227,31 @@ class MicroprocessorSystem:
             processor = Object((0, 0), 14e-3, 1e-3, 150, 5e8, colour="black")
             ceramic_case = Object((-3e-3, 1e-3), 20e-3, 2e-3, 230, 0, colour="orange")
 
-            # Adding heat sink
+            # Adding heat sink base
             base_width = sink_dimensions["base_width"]
-            fin_height = sink_dimensions["fin_height"]
-            fin_width = sink_dimensions["fin_width"]
-            spacing = sink_dimensions["fin_spacing"]
-
             base_bl_x = -3e-3 - (base_width - 20e-3) / 2
             sink_base = Object(
                 (base_bl_x, 3e-3), base_width, 4e-3, 250, 0, colour="grey"
             )
             self.objects = [processor, ceramic_case, sink_base]
+
+            # Adding heat sink fins
+            fin_height = sink_dimensions["fin_height"]
+            fin_width = sink_dimensions["fin_width"]
+            spacing = sink_dimensions["fin_spacing"]
+            n_fins = int(base_width / (fin_width + spacing)) + 1
+
+            # Ensuring fins don't extend past the edge of the heat sink base
+            combined_width = n_fins * (spacing + fin_width) - spacing
+            if combined_width > base_width:
+                n_fins -= 1
+
+            for i in range(n_fins):
+                x_pos = base_bl_x + i * (fin_width + spacing)
+                fin = Object(
+                    (x_pos, 7e-3), fin_width, fin_height, 250, 0, colour="grey"
+                )
+                self.objects.append(fin)
 
     def example_masks(self, step_size):
         """
