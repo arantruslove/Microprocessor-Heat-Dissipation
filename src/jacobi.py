@@ -395,8 +395,8 @@ def jacobi_poisson_iteration(
     # Bottom-right corner
     new[op_mask == 7] = next_btm_right(
         old[op_mask == 7],
-        t_right[op_mask == 7],
-        t_btm[op_mask == 7],
+        t_left[op_mask == 7],
+        t_top[op_mask == 7],
         k_centre[op_mask == 7],
         k_left[op_mask == 7],
         k_top[op_mask == 7],
