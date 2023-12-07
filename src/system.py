@@ -195,7 +195,17 @@ class Object:
 
 
 class MicroprocessorSystem:
-    def __init__(self, scenario: int):
+    def __init__(self, scenario: int, **sink_dimensions):
+        """
+        Sets up the microprocessor systems based on the three different physical
+        scenarios.
+        1: Microprocessor alone.
+        2: Microprocessor with ceramic case.
+        3: Microprocessor, ceramic case and heat sink.
+
+        Scenario 3 requires four keyword arguments:
+        base_width, fin_height, fin_width, spacing
+        """
         self.temps = [[]]
 
         if scenario > 3:
@@ -216,6 +226,18 @@ class MicroprocessorSystem:
             """Microprocessor, ceramic case and heat sink."""
             processor = Object((0, 0), 14e-3, 1e-3, 150, 5e8, colour="black")
             ceramic_case = Object((-3e-3, 1e-3), 20e-3, 2e-3, 230, 0, colour="orange")
+
+            # Adding heat sink
+            base_width = sink_dimensions["base_width"]
+            fin_height = sink_dimensions["fin_height"]
+            fin_width = sink_dimensions["fin_width"]
+            spacing = sink_dimensions["fin_spacing"]
+
+            base_bl_x = -3e-3 - (base_width - 20e-3) / 2
+            sink_base = Object(
+                (base_bl_x, 3e-3), base_width, 4e-3, 250, 0, colour="grey"
+            )
+            self.objects = [processor, ceramic_case, sink_base]
 
     def example_masks(self, step_size):
         """
