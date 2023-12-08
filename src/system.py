@@ -280,7 +280,6 @@ class MicroprocessorSystem:
         # Microprocessor index bounds
         all_bounds = all_object_bnds(self.objects, step_size)
         processor_bounds = all_bounds[0]
-        print(processor_bounds)
 
         # Generating masks and initial guesses
         op_mask, pow_mask, k_mask = generate_masks(self.objects, step_size)
@@ -316,6 +315,21 @@ class MicroprocessorSystem:
             raise RuntimeError("The system has not been solved")
 
         return np.flipud(self.temps.T)
+
+    def average_processor_temp(self, step_size):
+        """
+        Returns the average temperature of the microprocessor.
+        """
+        if len(self.temps) == 0:
+            raise RuntimeError("The system has not been solved")
+
+        bounds = all_object_bnds(self.objects, step_size)[0]
+        xmin = bounds["xmin"]
+        xmax = bounds["xmax"]
+        ymin = bounds["ymin"]
+        ymax = bounds["ymax"]
+
+        return np.mean(self.temps[xmin:xmax, ymin:ymax])
 
     def plot(self, step_size=None):
         """
