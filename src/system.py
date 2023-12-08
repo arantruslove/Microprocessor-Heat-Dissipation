@@ -77,6 +77,7 @@ def add_operation_numbers(binary_mesh: np.ndarray) -> np.ndarray:
     7: Bottom-right corner
     8: Top-left corner
     9: Top-right corner
+    10: Material inteface
     """
     operation_mesh = binary_mesh.copy()
     width = len(operation_mesh)
@@ -84,6 +85,10 @@ def add_operation_numbers(binary_mesh: np.ndarray) -> np.ndarray:
 
     for i in range(len(operation_mesh)):
         for j in range(len(operation_mesh[0])):
+            # Material interfaces
+            if operation_mesh[i][j] == 2:
+                operation_mesh[i][j] = 10
+
             if operation_mesh[i][j] == 1:
                 # Boundary checks
                 is_left = i == 0
@@ -157,7 +162,7 @@ def generate_masks(objects, step_size):
         xmax = bounds[i]["xmax"]
         ymin = bounds[i]["ymin"]
         ymax = bounds[i]["ymax"]
-        binary_mask[xmin : xmax + 1, ymin : ymax + 1] = 1
+        binary_mask[xmin : xmax + 1, ymin : ymax + 1] += 1
         power_mask[xmin : xmax + 1, ymin : ymax + 1] = objects[i].power
         conductivity_mask[xmin : xmax + 1, ymin : ymax + 1] = objects[i].k
 
