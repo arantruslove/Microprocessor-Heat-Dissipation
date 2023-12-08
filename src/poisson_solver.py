@@ -15,35 +15,6 @@ def fractional_change(current_array, previous_array):
     return abs(numerator / denominator)
 
 
-def average_surf_temp(temperatures: np.ndarray):
-    """
-    Determines the average surface temperature of a material given a matrix of
-    temperatures.
-    """
-    height = len(temperatures[0])
-    width = len(temperatures)
-
-    surface_temps = []
-    # Left boundary
-    for i in range(height):
-        surface_temps.append(temperatures[0][i])
-
-    # Right boundary
-    for i in range(height):
-        surface_temps.append(temperatures[width - 1][i])
-
-    # Bottom boundary
-    for i in range(width):
-        surface_temps.append(temperatures[i][0])
-
-    # Top boundary
-    for i in range(width):
-        surface_temps.append(temperatures[i][height - 1])
-
-    average_temp = np.mean(surface_temps)
-    return average_temp
-
-
 def poisson_solve(
     initial_temps: np.ndarray,
     op_mask: np.ndarray,
@@ -67,8 +38,6 @@ def poisson_solve(
 
     # Determining the mask of thermal conductivities to the left, right, bottom and top
     # of their original points
-    k_left = np.roll(k_mask, 1, axis=0)
-    k_right = np.roll(k_mask, -1, axis=0)
     k_btm = np.roll(k_mask, 1, axis=1)
     k_top = np.roll(k_mask, -1, axis=1)
 
