@@ -7,10 +7,7 @@ def next_interior(
     t_right,
     t_btm,
     t_top,
-    k_left,
-    k_right,
-    k_btm,
-    k_top,
+    k_centre,
     power,
     step_size,
 ):
@@ -18,14 +15,8 @@ def next_interior(
     Operation: 1
     Finds the next iteration of an interior point.
     """
-    k_tot = k_left + k_right + k_btm + k_top
-
-    return (1 / k_tot) * (
-        k_left * t_left
-        + k_right * t_right
-        + k_btm * t_btm
-        + k_top * t_top
-        + step_size**2 * power
+    return 0.25 * (
+        t_left + t_right + t_btm + t_top + (step_size**2 * power) / k_centre
     )
 
 
@@ -35,9 +26,6 @@ def next_left(
     t_btm,
     t_top,
     k_centre,
-    k_right,
-    k_btm,
-    k_top,
     power,
     boundary: Callable,
     step_size,
@@ -46,14 +34,12 @@ def next_left(
     Operation: 2
     Finds the next iteration of a point on a left boundary.
     """
-    k_tot = k_centre + k_right + k_btm + k_top
-
-    return (1 / k_tot) * (
-        (k_centre + k_right) * t_right
-        + k_btm * t_btm
-        + k_top * t_top
-        + step_size**2 * power
-        - 2 * step_size * boundary(t_centre)
+    return 0.25 * (
+        2 * t_right
+        + t_btm
+        + t_top
+        + (step_size**2 * power) / k_centre
+        - 2 * step_size * boundary(t_centre) / k_centre
     )
 
 
@@ -63,9 +49,6 @@ def next_right(
     t_btm,
     t_top,
     k_centre,
-    k_left,
-    k_btm,
-    k_top,
     power,
     boundary: Callable,
     step_size,
@@ -74,14 +57,12 @@ def next_right(
     Operation: 3
     Finds the next iteration of a point on a right boundary.
     """
-    k_tot = k_centre + k_left + k_btm + k_top
-
-    return (1 / k_tot) * (
-        (k_centre + k_left) * t_left
-        + k_btm * t_btm
-        + k_top * t_top
-        + step_size**2 * power
-        - 2 * step_size * boundary(t_centre)
+    return 0.25 * (
+        2 * t_left
+        + t_btm
+        + t_top
+        + (step_size**2 * power) / k_centre
+        - 2 * step_size * boundary(t_centre) / k_centre
     )
 
 
@@ -91,9 +72,6 @@ def next_btm(
     t_right,
     t_top,
     k_centre,
-    k_left,
-    k_right,
-    k_top,
     power,
     boundary: Callable,
     step_size,
@@ -102,14 +80,12 @@ def next_btm(
     Operation: 4
     Finds the next iteration of a point on a bottom boundary.
     """
-    k_tot = k_centre + k_left + k_right + k_top
-
-    return (1 / k_tot) * (
-        k_left * t_left
-        + k_right * t_right
-        + (k_centre + k_top) * t_top
-        + step_size**2 * power
-        - 2 * step_size * boundary(t_centre)
+    return 0.25 * (
+        t_left
+        + t_right
+        + 2 * t_top
+        + (step_size**2 * power) / k_centre
+        - 2 * step_size * boundary(t_centre) / k_centre
     )
 
 
@@ -119,9 +95,6 @@ def next_top(
     t_right,
     t_btm,
     k_centre,
-    k_left,
-    k_right,
-    k_btm,
     power,
     boundary: Callable,
     step_size,
@@ -130,14 +103,12 @@ def next_top(
     Operation: 5
     Finds the next iteration of a point on a top boundary.
     """
-    k_tot = k_centre + k_left + k_right + k_btm
-
-    return (1 / k_tot) * (
-        k_left * t_left
-        + k_right * t_right
-        + (k_centre + k_btm) * t_btm
-        + step_size**2 * power
-        - 2 * step_size * boundary(t_centre)
+    return 0.25 * (
+        t_left
+        + t_right
+        + 2 * t_btm
+        + (step_size**2 * power) / k_centre
+        - 2 * step_size * boundary(t_centre) / k_centre
     )
 
 
@@ -146,8 +117,6 @@ def next_btm_left(
     t_right,
     t_top,
     k_centre,
-    k_right,
-    k_top,
     power,
     boundary: Callable,
     step_size,
@@ -156,13 +125,12 @@ def next_btm_left(
     Operation: 6
     Finds the next iteration of a point on a bottom-left corner.
     """
-    k_tot = 2 * k_centre + k_right + k_top
 
-    return (1 / k_tot) * (
-        (k_centre + k_right) * t_right
-        + (k_centre + k_top) * t_top
-        + step_size**2 * power
-        - 4 * step_size * boundary(t_centre)
+    return 0.25 * (
+        2 * t_right
+        + 2 * t_top
+        + (step_size**2 * power) / k_centre
+        - 4 * step_size * boundary(t_centre) / k_centre
     )
 
 
@@ -171,8 +139,6 @@ def next_btm_right(
     t_left,
     t_top,
     k_centre,
-    k_left,
-    k_top,
     power,
     boundary: Callable,
     step_size,
@@ -181,13 +147,11 @@ def next_btm_right(
     Operation: 7
     Finds the next iteration of a point on a bottom-right corner.
     """
-    k_tot = 2 * k_centre + k_left + k_top
-
-    return (1 / k_tot) * (
-        (k_centre + k_left) * t_left
-        + (k_centre + k_top) * t_top
-        + step_size**2 * power
-        - 4 * step_size * boundary(t_centre)
+    return 0.25 * (
+        2 * t_left
+        + 2 * t_top
+        + (step_size**2 * power) / k_centre
+        - 4 * step_size * boundary(t_centre) / k_centre
     )
 
 
@@ -196,8 +160,6 @@ def next_top_left(
     t_right,
     t_btm,
     k_centre,
-    k_right,
-    k_btm,
     power,
     boundary: Callable,
     step_size,
@@ -206,13 +168,11 @@ def next_top_left(
     Operation: 8
     Finds the next iteration of a point on a top-left corner.
     """
-    k_tot = 2 * k_centre + k_right + k_btm
-
-    return (1 / k_tot) * (
-        (k_centre + k_right) * t_right
-        + (k_centre + k_btm) * t_btm
-        + step_size**2 * power
-        - 4 * step_size * boundary(t_centre)
+    return 0.25 * (
+        2 * t_right
+        + 2 * t_btm
+        + (step_size**2 * power) / k_centre
+        - 4 * step_size * boundary(t_centre) / k_centre
     )
 
 
@@ -221,24 +181,33 @@ def next_top_right(
     t_left,
     t_btm,
     k_centre,
-    k_left,
-    k_btm,
     power,
     boundary: Callable,
     step_size,
 ):
     """
-    Operation: 8
+    Operation: 9
     Finds the next iteration of a point on a top-right corner.
     """
-    k_tot = 2 * k_centre + k_left + k_btm
-
-    return (1 / k_tot) * (
-        (k_centre + k_left) * t_left
-        + (k_centre + k_btm) * t_btm
-        + step_size**2 * power
-        - 4 * step_size * boundary(t_centre)
+    return 0.25 * (
+        2 * t_left
+        + 2 * t_btm
+        + (step_size**2 * power) / k_centre
+        - 4 * step_size * boundary(t_centre) / k_centre
     )
+
+
+def next_interface(
+    t_btm,
+    t_top,
+    k_btm,
+    k_top,
+):
+    """
+    Operation: 10
+    Finds the next iteration of a point on a top-right corner.
+    """
+    return (k_btm * t_btm + k_top * t_top) / (k_btm + k_top)
 
 
 def jacobi_poisson_iteration(
@@ -246,8 +215,6 @@ def jacobi_poisson_iteration(
     op_mask: np.ndarray,
     pow_mask: np.ndarray,
     k_centre: np.ndarray,
-    k_left: np.ndarray,
-    k_right: np.ndarray,
     k_btm: np.ndarray,
     k_top: np.ndarray,
     boundary: Callable,
@@ -271,10 +238,7 @@ def jacobi_poisson_iteration(
         t_right[op_mask == 1],
         t_btm[op_mask == 1],
         t_top[op_mask == 1],
-        k_left[op_mask == 1],
-        k_right[op_mask == 1],
-        k_btm[op_mask == 1],
-        k_top[op_mask == 1],
+        k_centre[op_mask == 1],
         pow_mask[op_mask == 1],
         step_size,
     )
@@ -286,9 +250,6 @@ def jacobi_poisson_iteration(
         t_btm[op_mask == 2],
         t_top[op_mask == 2],
         k_centre[op_mask == 2],
-        k_right[op_mask == 2],
-        k_btm[op_mask == 2],
-        k_top[op_mask == 2],
         pow_mask[op_mask == 2],
         boundary,
         step_size,
@@ -301,9 +262,6 @@ def jacobi_poisson_iteration(
         t_btm[op_mask == 3],
         t_top[op_mask == 3],
         k_centre[op_mask == 3],
-        k_left[op_mask == 3],
-        k_btm[op_mask == 3],
-        k_top[op_mask == 3],
         pow_mask[op_mask == 3],
         boundary,
         step_size,
@@ -316,9 +274,6 @@ def jacobi_poisson_iteration(
         t_right[op_mask == 4],
         t_top[op_mask == 4],
         k_centre[op_mask == 4],
-        k_left[op_mask == 4],
-        k_right[op_mask == 4],
-        k_top[op_mask == 4],
         pow_mask[op_mask == 4],
         boundary,
         step_size,
@@ -331,9 +286,6 @@ def jacobi_poisson_iteration(
         t_right[op_mask == 5],
         t_btm[op_mask == 5],
         k_centre[op_mask == 5],
-        k_left[op_mask == 5],
-        k_right[op_mask == 5],
-        k_btm[op_mask == 5],
         pow_mask[op_mask == 5],
         boundary,
         step_size,
@@ -345,8 +297,6 @@ def jacobi_poisson_iteration(
         t_right[op_mask == 6],
         t_top[op_mask == 6],
         k_centre[op_mask == 6],
-        k_right[op_mask == 6],
-        k_top[op_mask == 6],
         pow_mask[op_mask == 6],
         boundary,
         step_size,
@@ -358,8 +308,6 @@ def jacobi_poisson_iteration(
         t_left[op_mask == 7],
         t_top[op_mask == 7],
         k_centre[op_mask == 7],
-        k_left[op_mask == 7],
-        k_top[op_mask == 7],
         pow_mask[op_mask == 7],
         boundary,
         step_size,
@@ -371,8 +319,6 @@ def jacobi_poisson_iteration(
         t_right[op_mask == 8],
         t_btm[op_mask == 8],
         k_centre[op_mask == 8],
-        k_right[op_mask == 8],
-        k_btm[op_mask == 8],
         pow_mask[op_mask == 8],
         boundary,
         step_size,
@@ -384,11 +330,17 @@ def jacobi_poisson_iteration(
         t_left[op_mask == 9],
         t_btm[op_mask == 9],
         k_centre[op_mask == 9],
-        k_left[op_mask == 9],
-        k_btm[op_mask == 9],
         pow_mask[op_mask == 9],
         boundary,
         step_size,
+    )
+
+    # Material interface
+    new[op_mask == 10] = next_interface(
+        t_btm[op_mask == 10],
+        t_top[op_mask == 10],
+        k_btm[op_mask == 10],
+        k_top[op_mask == 10],
     )
 
     return new

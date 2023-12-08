@@ -86,8 +86,6 @@ def poisson_solve(
             op_mask,
             pow_mask,
             k_mask,
-            k_left,
-            k_right,
             k_btm,
             k_top,
             boundary_func,

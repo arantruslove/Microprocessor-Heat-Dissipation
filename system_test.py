@@ -4,8 +4,8 @@ import numpy as np
 import src.system as sys
 
 # %% Testing the plotting capabilities
-step_size = 0.001
-base_width = 16e-3
+step_size = 0.0005
+base_width = 49e-3
 fin_height = 30e-3
 fin_width = 1e-3
 fin_spacing = 2e-3
@@ -17,16 +17,14 @@ basic_sys = sys.MicroprocessorSystem(
     fin_spacing=fin_spacing,
 )
 basic_sys.plot(step_size=step_size)
+basic_sys.solve_system(3000, step_size, 1e-7, 1, forced=False)
 
 # %%
 print(basic_sys.average_processor_temp(step_size))
-basic_sys.contour()
+temps = basic_sys.output_temps()
 
 # %% Testing the example meshes
-operation_mask, power_mask, conductivity_mask, binary_mask = basic_sys.example_masks(
-    step_size
-)
-
+operation_mask, power_mask, conductivity_mask = basic_sys.example_masks(step_size)
 
 # %% Profiling the operation
 basic_sys = sys.MicroprocessorSystem(2)
