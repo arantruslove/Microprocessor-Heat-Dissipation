@@ -1,7 +1,7 @@
 import numpy as np
-import utils
 from typing import Callable
 from . import jacobi
+from . import utils
 
 
 def fractional_change(current_array, previous_array):

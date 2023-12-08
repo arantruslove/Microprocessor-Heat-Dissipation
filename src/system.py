@@ -396,3 +396,10 @@ class MicroprocessorSystem:
             ax.add_patch(rect)
 
         plt.show()
+
+    def contour(self):
+        axis = plt.contourf(self.temps.T)
+        axis_colorbar = plt.colorbar(axis)
+        axis_colorbar.set_label("C")
+
+        plt.show()
