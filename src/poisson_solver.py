@@ -1,4 +1,5 @@
 import numpy as np
+import utils
 from typing import Callable
 from . import jacobi
 
@@ -55,7 +56,7 @@ def poisson_solve(
     boundary_func: Callable,
 ) -> np.ndarray:
     """
-    Solves the poisson equation using the jacobi method. Applies Neumann boundary
+    Solves the Poisson equation using an iterative method. Applies Neumann boundary
     conditions.
     """
     # Microprocessor index bounds
