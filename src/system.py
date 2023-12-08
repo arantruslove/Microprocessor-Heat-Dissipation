@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
-from . import jacobi as jc
+from . import poisson_solver as ps
 from . import heat_equations as he
 
 
@@ -291,7 +291,7 @@ class MicroprocessorSystem:
             boundary = he.forced_dissipation
         else:
             boundary = he.natural_dissipation
-        temperatures = jc.jacobi_poisson_solve(
+        temperatures = ps.poisson_solve(
             initial_guess,
             op_mask,
             pow_mask,
