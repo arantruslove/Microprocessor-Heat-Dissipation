@@ -149,7 +149,9 @@ def generate_masks(objects, step_size):
     """
     # Initialising meshes
     base = create_mesh(objects, step_size)
-    binary_mask = base.copy()  # Binary mask of combined system objects
+    # Mask of the combined system where interfaces will be set to 2 and remaining points
+    # to 1
+    materials_mask = base.copy()
     power_mask = base.copy()
     conductivity_mask = base.copy()
 
@@ -162,11 +164,16 @@ def generate_masks(objects, step_size):
         xmax = bounds[i]["xmax"]
         ymin = bounds[i]["ymin"]
         ymax = bounds[i]["ymax"]
-        binary_mask[xmin : xmax + 1, ymin : ymax + 1] += 1
+        if i < 3:
+            materials_mask[xmin : xmax + 1, ymin : ymax + 1] += 1
+        else:
+            # To ensure that connection between fin and heat sink is not considered
+            # to be a material boundary
+            materials_mask[xmin : xmax + 1, ymin : ymax + 1] = 1
         power_mask[xmin : xmax + 1, ymin : ymax + 1] = objects[i].power
         conductivity_mask[xmin : xmax + 1, ymin : ymax + 1] = objects[i].k
 
-    operation_mask = add_operation_numbers(binary_mask)
+    operation_mask = add_operation_numbers(materials_mask)
 
     return operation_mask, power_mask, conductivity_mask
 
