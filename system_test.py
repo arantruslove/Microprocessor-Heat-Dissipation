@@ -4,8 +4,8 @@ import numpy as np
 import src.system as sys
 
 # %% Testing the plotting capabilities
-step_size = 0.0005
-base_width = 16e-3
+step_size = 0.001
+base_width = 199e-3
 fin_height = 30e-3
 fin_width = 1e-3
 fin_spacing = 2e-3
@@ -17,7 +17,7 @@ basic_sys = sys.MicroprocessorSystem(
     fin_spacing=fin_spacing,
 )
 basic_sys.plot(step_size=step_size)
-basic_sys.solve_system(110, step_size, 1e-9, 1000000, forced=True)
+basic_sys.solve_system(100, step_size, 1e-7, 1000000, forced=False)
 
 # %%
 print(basic_sys.average_processor_temp(step_size))

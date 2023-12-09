@@ -77,7 +77,7 @@ def add_operation_numbers(binary_mesh: np.ndarray) -> np.ndarray:
     7: Bottom-right corner
     8: Top-left corner
     9: Top-right corner
-    10: Material inteface
+    10: Material interface
     """
     operation_mesh = binary_mesh.copy()
     width = len(operation_mesh)
