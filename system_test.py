@@ -4,11 +4,11 @@ import numpy as np
 import src.system as sys
 
 # %% Testing the plotting capabilities
-step_size = 0.001
-base_width = 199e-3
+step_size = 0.0005
+base_width = 58e-3
 fin_height = 30e-3
-fin_width = 1e-3
-fin_spacing = 2e-3
+fin_width = 100e-3
+fin_spacing = 20e-3
 basic_sys = sys.MicroprocessorSystem(
     3,
     base_width=base_width,
@@ -17,10 +17,10 @@ basic_sys = sys.MicroprocessorSystem(
     fin_spacing=fin_spacing,
 )
 basic_sys.plot(step_size=step_size)
-basic_sys.solve_system(100, step_size, 1e-7, 1000000, forced=False)
+errors = basic_sys.solve_system(20, step_size, 1e-7, 1000000, forced=True)
 
 # %%
-print(basic_sys.average_processor_temp(step_size))
+print(basic_sys.mean_temp)
 temps = basic_sys.output_temps()
 
 # %% Testing the example meshes

@@ -1,7 +1,6 @@
 import numpy as np
 from typing import Callable
 from . import jacobi
-from . import utils
 
 
 def fractional_change(current_array, previous_array):
@@ -73,4 +72,6 @@ def poisson_solve(
         if frac_change < stopping_condition:
             break
 
-    return solution
+        convergence_errors = abs(solution - old_solution)
+
+    return solution, convergence_errors

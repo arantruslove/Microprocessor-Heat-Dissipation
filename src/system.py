@@ -4,6 +4,7 @@ import matplotlib.patches as patches
 import numpy as np
 from . import poisson_solver as ps
 from . import heat_equations as he
+from . import errors
 
 
 # Functions
@@ -216,9 +217,10 @@ class MicroprocessorSystem:
         3: Microprocessor, ceramic case and heat sink.
 
         Scenario 3 requires four keyword arguments:
-        base_width, fin_height, fin_width, spacing
+        base_width, fin_height, fin_width, fin_spacing
         """
         self.temps = []
+        self.mean_temp = None
 
         if scenario > 3:
             raise RuntimeError("There are only 4 physical scenarios")
@@ -303,7 +305,7 @@ class MicroprocessorSystem:
             boundary = he.forced_dissipation
         else:
             boundary = he.natural_dissipation
-        temperatures = ps.poisson_solve(
+        temperatures, convergence_errors = ps.poisson_solve(
             initial_guess,
             op_mask,
             pow_mask,
@@ -314,8 +316,18 @@ class MicroprocessorSystem:
             max_iterations,
             boundary,
         )
-
         self.temps = temperatures
+
+        # Determining mean temperature of microprocessor with uncertainty
+        xmin = processor_bounds["xmin"]
+        xmax = processor_bounds["xmax"]
+        ymin = processor_bounds["ymin"]
+        ymax = processor_bounds["ymax"]
+
+        # Mean temperature with convergence error
+        self.mean_temp = errors.mean_value(
+            temperatures[xmin:xmax, ymin:ymax], convergence_errors[xmin:xmax, ymin:ymax]
+        )
 
     def output_temps(self):
         """
@@ -347,6 +359,7 @@ class MicroprocessorSystem:
         """
         Plots the grid with the optional argument of providing a step size which
         plots the position of the mesh points using lines instead of scatter points.
+        This code has been adapted from a Chat GPT-4 response.
         """
         fig, ax = plt.subplots()
 
