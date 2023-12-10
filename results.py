@@ -1020,36 +1020,6 @@ print("Average Temperature:")
 print(errors.extrapolate(temp1, temp2))
 print("Uncertainty:")
 print(temp2 - temp1)
-# %% 25 Fins
-SEPARATION = 1e-3
-WIDTH = 1e-3
-HEIGHT = 49e-3
-BASE_WIDTH = 49e-3
-system = sys.MicroprocessorSystem(
-    3, base_width=BASE_WIDTH, fin_height=HEIGHT, fin_width=WIDTH, fin_spacing=SEPARATION
-)
-system.plot()
-
-STEP_SIZE = 0.0005  # h
-INITIAL_TEMP = 40
-STOPPING_CONDITION = 1e-7
-MAX_ITERS = 10000000
-
-system.solve_system(INITIAL_TEMP, STEP_SIZE, STOPPING_CONDITION, MAX_ITERS, forced=True)
-temp1 = system.mean_temp
-print(temp1)
-
-STEP_SIZE = 0.00025  # h/2
-INITIAL_TEMP = 40
-system.solve_system(INITIAL_TEMP, STEP_SIZE, STOPPING_CONDITION, MAX_ITERS, forced=True)
-temp2 = system.mean_temp
-print(temp2)
-
-# Richardson extrapolation
-print("Average Temperature:")
-print(errors.extrapolate(temp1, temp2))
-print("Uncertainty:")
-print(temp2 - temp1)
 
 # %% 24 Fins
 SEPARATION = 1e-3
@@ -1113,7 +1083,36 @@ print(errors.extrapolate(temp1, temp2))
 print("Uncertainty:")
 print(temp2 - temp1)
 
+# %% 27 Fins
+SEPARATION = 1e-3
+WIDTH = 1e-3
+HEIGHT = 55e-3
+BASE_WIDTH = 55e-3
+system = sys.MicroprocessorSystem(
+    3, base_width=BASE_WIDTH, fin_height=HEIGHT, fin_width=WIDTH, fin_spacing=SEPARATION
+)
+system.plot()
 
+STEP_SIZE = 0.0005  # h
+INITIAL_TEMP = 40
+STOPPING_CONDITION = 1e-7
+MAX_ITERS = 10000000
+
+system.solve_system(INITIAL_TEMP, STEP_SIZE, STOPPING_CONDITION, MAX_ITERS, forced=True)
+temp1 = system.mean_temp
+print(temp1)
+
+STEP_SIZE = 0.00025  # h/2
+INITIAL_TEMP = 40
+system.solve_system(INITIAL_TEMP, STEP_SIZE, STOPPING_CONDITION, MAX_ITERS, forced=True)
+temp2 = system.mean_temp
+print(temp2)
+
+# Richardson extrapolation
+print("Average Temperature:")
+print(errors.extrapolate(temp1, temp2))
+print("Uncertainty:")
+print(temp2 - temp1)
 # %% 30 Fins
 SEPARATION = 1e-3
 WIDTH = 1e-3
