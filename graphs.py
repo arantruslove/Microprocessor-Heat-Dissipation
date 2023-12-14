@@ -23,7 +23,7 @@ def plot(xdata, ydata, y_errors, xlabel, horizontal_line=0):
         capsize=5,
         capthick=2,
         label="Temperature with error bars",
-        markersize=10,
+        markersize=13,
     )
 
     if horizontal_line:
@@ -31,15 +31,15 @@ def plot(xdata, ydata, y_errors, xlabel, horizontal_line=0):
             y=horizontal_line,
             linestyle="dashed",
             color="red",
-            label="Maximum acceptable temperature",
+            label="Acceptable operating temperature",
         )
 
-    plt.ylabel(r"Temperature ($^\circ$C)", fontsize=16)
-    plt.xlabel(xlabel, fontsize=16)
-    plt.xticks(fontsize=14)
-    plt.yticks(fontsize=14)
+    plt.ylabel(r"Mean temperature ($^\circ$C)", fontsize=20)
+    plt.xlabel(xlabel, fontsize=20)
+    plt.xticks(fontsize=18)
+    plt.yticks(fontsize=18)
 
-    plt.legend(loc="upper right", fontsize=16)
+    plt.legend(loc="upper right", fontsize=19)
 
     plt.grid(True, linestyle="--", linewidth=0.5, color="grey")
     plt.show()
@@ -53,9 +53,9 @@ errors = [200, 200, 180, 160, 150, 140]
 plot(n_fins, temps, errors, "Number of fins")
 
 # %% Varying fin height (natural dissipation)
-fin_height = [0, 15, 30, 45, 60]
-temps = [3500, 900, 650, 510, 430]
-errors = [500, 300, 180, 140, 120]
+fin_height = [0, 5, 15, 30, 45, 60]
+temps = [3500, 1800, 900, 650, 510, 430]
+errors = [500, 400, 300, 180, 140, 120]
 
 plot(fin_height, temps, errors, "Fin height (mm)")
 

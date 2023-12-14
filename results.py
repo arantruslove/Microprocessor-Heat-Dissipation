@@ -7,7 +7,7 @@ import src.errors as errors
 # %% Task 3: Microprocessor + Ceramic Case, Natural Convection
 system = sys.MicroprocessorSystem(2)
 
-STEP_SIZE = 0.001
+STEP_SIZE = 0.0005
 INITIAL_TEMP = 4200
 STOPPING_CONDITION = 1e-7
 MAX_ITERS = 1000000
@@ -18,8 +18,8 @@ temp1 = system.mean_temp
 print(temp1)
 
 # Half the step size
-STEP_SIZE = 0.0005
-INITIAL_TEMP = 5300
+STEP_SIZE = 0.00025
+INITIAL_TEMP = 4500
 system.solve_system(INITIAL_TEMP, STEP_SIZE, STOPPING_CONDITION, MAX_ITERS)
 temp2 = system.mean_temp
 print(temp2)
@@ -111,7 +111,7 @@ BASE_WIDTH = 40e-3
 system = sys.MicroprocessorSystem(
     3, base_width=BASE_WIDTH, fin_height=HEIGHT, fin_width=WIDTH, fin_spacing=SEPARATION
 )
-system.plot()
+system.plot(step_size=STEP_SIZE)
 
 STEP_SIZE = 0.001  # h
 INITIAL_TEMP = 300
@@ -272,6 +272,40 @@ print("Average Temperature:")
 print(errors.extrapolate(temp1, temp2))
 print("Uncertainty:")
 print(temp2 - temp1)
+
+#%% 5 mm
+SEPARATION = 2e-3
+WIDTH = 1e-3
+HEIGHT = 5e-3
+
+STEP_SIZE = 0.001
+BASE_WIDTH = 40e-3
+system = sys.MicroprocessorSystem(
+    3, base_width=BASE_WIDTH, fin_height=HEIGHT, fin_width=WIDTH, fin_spacing=SEPARATION
+)
+system.plot()
+
+STEP_SIZE = 0.001  # h
+INITIAL_TEMP = 150
+STOPPING_CONDITION = 1e-7
+MAX_ITERS = 1000000
+
+system.solve_system(INITIAL_TEMP, STEP_SIZE, STOPPING_CONDITION, MAX_ITERS)
+temp1 = system.mean_temp
+print(temp1)
+
+STEP_SIZE = 0.0005  # h/2
+INITIAL_TEMP = 350
+system.solve_system(INITIAL_TEMP, STEP_SIZE, STOPPING_CONDITION, MAX_ITERS)
+temp2 = system.mean_temp
+print(temp2)
+
+# Richardson extrapolation
+print("Average Temperature:")
+print(errors.extrapolate(temp1, temp2))
+print("Uncertainty:")
+print(temp2 - temp1)
+
 
 # %% 15 mm
 SEPARATION = 2e-3
@@ -1143,5 +1177,3 @@ print("Average Temperature:")
 print(errors.extrapolate(temp1, temp2))
 print("Uncertainty:")
 print(temp2 - temp1)
-
-# %%

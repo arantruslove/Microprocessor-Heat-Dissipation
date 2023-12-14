@@ -359,7 +359,7 @@ class MicroprocessorSystem:
         """
         Plots the grid with the optional argument of providing a step size which
         plots the position of the mesh points using lines instead of scatter points.
-        This code has been adapted from a Chat GPT-4 response.
+        This method has been adapted from a Chat GPT-4 response.
         """
         fig, ax = plt.subplots()
 
@@ -398,10 +398,10 @@ class MicroprocessorSystem:
 
         # Set the aspect ratio to equal to maintain the scale of the plot
         ax.set_aspect("equal", adjustable="box")
-
-        ax.set_title("Microprocessor System")
-        ax.set_xlabel("Width (m)")
-        ax.set_ylabel("Height (m)")
+        ax.set_xlabel("Width (m)", fontsize=16)
+        ax.set_ylabel("Height (m)", fontsize=16)
+        plt.xticks(None)
+        plt.yticks(None)
 
         for obj in self.objects:
             # Create a rectangle patch with a semi-transparent color and add it to the
