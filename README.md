@@ -1,4 +1,5 @@
 Imperial Year 3 Physics Microprocessor Heat Dissipation Project
+Link to project report: https://github.com/arantruslove/Microprocessor-Heat-Dissipation/blob/pictorial/Report.pdf
 
 To initialise the environment, run the following commands:
 
